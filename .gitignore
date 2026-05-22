@@ -1,0 +1,13 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+.vscode/
+TestResults/
+*.lutconfig
+*.nupkg
+*.snupkg
+artifacts/
+coverage.*
