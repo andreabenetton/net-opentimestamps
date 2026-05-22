@@ -6,7 +6,7 @@ namespace OpenTimestamps.Cli.Commands;
 internal static class VerifyCommand
 {
     public const string Usage =
-        "usage: ots verify <file> [--proof <file.ots>] [--explorer <url> | --bitcoin-rpc <url> [--rpc-user U --rpc-password P]]";
+        "usage: ots verify [--json] <file> [--proof <file.ots>] [--explorer <url> | --bitcoin-rpc <url> [--rpc-user U --rpc-password P]]";
 
     public static async Task<int> RunAsync(string[] args, HttpClient http, CancellationToken ct)
     {
@@ -15,7 +15,8 @@ internal static class VerifyCommand
             .Option("--explorer")
             .Option("--bitcoin-rpc")
             .Option("--rpc-user")
-            .Option("--rpc-password");
+            .Option("--rpc-password")
+            .Flag("--json");
         parser.Parse();
 
         if (parser.Positionals.Count != 1)
@@ -72,6 +73,18 @@ internal static class VerifyCommand
         {
             Console.Error.WriteLine($"ots verify: {ex.Message}");
             return ExitCode.OperationFailed;
+        }
+
+        if (parser.HasFlag("--json"))
+        {
+            using Stream stdout = Console.OpenStandardOutput();
+            JsonOutput.WriteVerifyResult(result, provider, filePath, stdout);
+            Console.Out.WriteLine();
+            return result.Status switch
+            {
+                Verification.TimestampStatus.Verified => ExitCode.Success,
+                _ => ExitCode.VerificationFailed,
+            };
         }
 
         return PrintAndExit(result, provider, filePath);

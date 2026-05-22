@@ -6,11 +6,11 @@ namespace OpenTimestamps.Cli.Commands;
 
 internal static class InfoCommand
 {
-    public const string Usage = "usage: ots info <file.ots>";
+    public const string Usage = "usage: ots info [--json] <file.ots>";
 
     public static int Run(string[] args)
     {
-        var parser = new ArgParser("info", args);
+        var parser = new ArgParser("info", args).Flag("--json");
         parser.Parse();
         if (parser.Positionals.Count != 1)
         {
@@ -37,6 +37,14 @@ internal static class InfoCommand
         {
             Console.Error.WriteLine($"ots info: failed to parse {path}: {ex.Message}");
             return ExitCode.OperationFailed;
+        }
+
+        if (parser.HasFlag("--json"))
+        {
+            using Stream stdout = Console.OpenStandardOutput();
+            JsonOutput.WriteInfo(dtf, stdout);
+            Console.Out.WriteLine();
+            return ExitCode.Success;
         }
 
         Console.Out.WriteLine($"File hash op: {dtf.FileHashOp.Name}");
