@@ -100,3 +100,5 @@ Not implemented yet:
 ## License
 
 LGPL-3.0-or-later, matching the upstream OpenTimestamps reference clients.
+See [LICENSE](LICENSE) for the LGPL-3.0 text and [LICENSE.GPL](LICENSE.GPL)
+for the GPL-3.0 text that the LGPL incorporates by reference.
