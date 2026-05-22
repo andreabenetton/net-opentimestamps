@@ -37,6 +37,11 @@ public sealed class UpgradeService
         var stillPending = new List<string>();
         var errors = new List<string>();
 
+        // Pending attestations are not removed on successful merge (we preserve
+        // history), so we track which (commitment, uri) pairs have already been
+        // visited this call to avoid retrying them in the inner loop.
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+
         bool anyResolved;
         do
         {
@@ -57,6 +62,12 @@ public sealed class UpgradeService
 
             foreach ((byte[] msg, PendingAttestation pending, Timestamp node) in todo)
             {
+                string key = Convert.ToHexString(msg) + "\0" + pending.Uri;
+                if (!visited.Add(key))
+                {
+                    continue;
+                }
+
                 if (!_whitelist.IsAllowed(pending.Uri))
                 {
                     skipped.Add($"{pending.Uri} (not on whitelist)");
