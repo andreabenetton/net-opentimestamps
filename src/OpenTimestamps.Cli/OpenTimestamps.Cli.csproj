@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>OpenTimestamps.Cli</RootNamespace>
+    <AssemblyName>ots</AssemblyName>
+    <PackageId>OpenTimestamps.Cli</PackageId>
+    <Description>Command-line client for the OpenTimestamps protocol — stamp, verify, upgrade, and inspect detached .ots proofs.</Description>
+    <PackageTags>opentimestamps;ots;cli;bitcoin;timestamp</PackageTags>
+    <Version>0.1.0</Version>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>ots</ToolCommandName>
+    <NoWarn>$(NoWarn);CA1303;CA2007</NoWarn>
+    <RootNamespace>OpenTimestamps.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenTimestamps\OpenTimestamps.csproj" />
+  </ItemGroup>
+
+</Project>
