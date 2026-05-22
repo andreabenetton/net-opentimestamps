@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded PR runs but let main-branch runs finish, so the latest push
+# to a PR doesn't stack up older runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+jobs:
+  build-and-test:
+    name: build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    env:
+      # The integration project's only test hits live blockstream.info; CI must
+      # not depend on third-party uptime. Run those tests locally without this
+      # flag, or trigger the on-demand `live-integration` job below.
+      OTS_SKIP_NETWORK: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # Pin via global.json so the workflow tracks the repo's SDK choice.
+          global-json-file: global.json
+
+      - name: Print versions
+        run: |
+          dotnet --info
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props', 'global.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore OpenTimestamps.sln
+
+      - name: Build (Release, warnings-as-errors)
+        run: dotnet build OpenTimestamps.sln --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test OpenTimestamps.sln
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --logger "console;verbosity=normal"
+          --
+          RunConfiguration.CollectSourceInformation=true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: "**/TestResults/test-results.trx"
+          if-no-files-found: warn
+          retention-days: 14
+
+  cli-smoke:
+    name: CLI smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: build-and-test
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props', 'global.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # CLAUDE.md: "CLI exercised against a real fixture when CLI changed."
+      # Run two non-network CLI invocations against a committed fixture and
+      # confirm they succeed and produce the expected status / exit code.
+      - name: ots info on hello-world fixture
+        run: >
+          dotnet run --project src/OpenTimestamps.Cli --configuration Release --
+          info tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt.ots
+
+      - name: ots verify reports ANCHORED without a provider (exit 2)
+        shell: bash
+        run: |
+          set +e
+          dotnet run --project src/OpenTimestamps.Cli --configuration Release -- \
+            verify tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt
+          rc=$?
+          set -e
+          if [ "$rc" != "2" ]; then
+            echo "expected exit code 2 (verification failed: anchored but unchecked); got $rc"
+            exit 1
+          fi
+
+  live-integration:
+    # Opt-in only: blockstream.info is a third party we should not pin our
+    # main-branch signal to. Run via "Run workflow" in the Actions UI when
+    # you need to confirm live-network behavior.
+    name: live integration (network)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore OpenTimestamps.sln
+
+      - name: Run integration tests against live Esplora
+        run: >
+          dotnet test tests/OpenTimestamps.IntegrationTests/OpenTimestamps.IntegrationTests.csproj
+          --configuration Release
+          --logger "console;verbosity=normal"
