@@ -102,6 +102,32 @@ public sealed class CalendarClientTests
     }
 
     [Fact]
+    public async Task SubmitDigest_NonSuccess_With_Unreadable_Body_Preserves_Inner_Exception()
+    {
+        // The HTTP non-success path used to silently swallow body-read failures.
+        // After T1.1, the read failure is preserved on CalendarException.InnerException
+        // so it's never lost to diagnostics.
+        var handler = new BrokenBodyHandler(HttpStatusCode.BadGateway);
+        using var http = new HttpClient(handler);
+        var client = new CalendarClient(http, CalendarBase);
+
+        var ex = await Assert.ThrowsAsync<CalendarException>(
+            () => client.SubmitDigestAsync(new byte[32]));
+        Assert.Equal(502, ex.HttpStatus);
+        Assert.NotNull(ex.InnerException);
+        // HttpClient wraps the IOException; the inner chain still leads back to it.
+        Exception? walk = ex.InnerException;
+        bool sawIo = false;
+        while (walk is not null)
+        {
+            if (walk is IOException) { sawIo = true; break; }
+            walk = walk.InnerException;
+        }
+        Assert.True(sawIo, $"expected IOException in inner chain, got {ex.InnerException}");
+        Assert.Contains("unreadable", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task GetTimestamp_200_Parses_Body_With_Commitment_As_Initial_Msg()
     {
         byte[] commitment = new byte[32];
@@ -144,6 +170,48 @@ public sealed class CalendarClientTests
             {
                 Content = new ByteArrayContent(_body),
             });
+        }
+    }
+
+    /// <summary>
+    /// Returns a response whose body stream throws IOException on read.
+    /// Mimics a network drop mid-body.
+    /// </summary>
+    private sealed class BrokenBodyHandler : HttpMessageHandler
+    {
+        private readonly HttpStatusCode _status;
+
+        public BrokenBodyHandler(HttpStatusCode status)
+        {
+            _status = status;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new HttpResponseMessage(_status)
+            {
+                Content = new StreamContent(new ThrowingStream()),
+            });
+        }
+
+        private sealed class ThrowingStream : Stream
+        {
+            public override bool CanRead => true;
+            public override bool CanSeek => false;
+            public override bool CanWrite => false;
+            public override long Length => throw new NotSupportedException();
+            public override long Position
+            {
+                get => throw new NotSupportedException();
+                set => throw new NotSupportedException();
+            }
+            public override void Flush() { }
+            public override int Read(byte[] buffer, int offset, int count)
+                => throw new IOException("simulated network drop");
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
         }
     }
 }
