@@ -38,6 +38,11 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   are no longer cached — the next caller retries the inner provider, which
   matters for transient network failures. Default `maxEntries` raised from
   4096 to 8192 (≈800 days of Bitcoin blocks).
+- `OpenTimestamps.Verification.IHeaderCacheStore` and
+  `OpenTimestamps.Verification.FileBackedHeaderCacheStore` — pluggable
+  persistent backing store for block headers. Compose via the optional
+  `store:` parameter on `CachingBlockHeaderProvider`. Trust category
+  inherits from the inner provider; see `docs/verification-model.md`.
 - Library now references `Microsoft.Extensions.Logging.Abstractions`.
   `CalendarClient`, `StampService`, `UpgradeService`, `VerificationService`,
   `CachingBlockHeaderProvider`, `EsploraBlockHeaderProvider`, and

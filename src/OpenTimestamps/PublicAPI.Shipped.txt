@@ -155,7 +155,7 @@ OpenTimestamps.Verification.BlockHeaderProvider
 OpenTimestamps.Verification.BlockHeaderProvider.BlockHeaderProvider() -> void
 OpenTimestamps.Verification.CachingBlockHeaderProvider
 OpenTimestamps.Verification.CachingBlockHeaderProvider.CachedCount.get -> int
-OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192, Microsoft.Extensions.Logging.ILogger? logger = null, OpenTimestamps.Verification.IHeaderCacheStore? store = null) -> void
 OpenTimestamps.Verification.EsploraBlockHeaderProvider
 OpenTimestamps.Verification.EsploraBlockHeaderProvider.EsploraBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.FileDigestMismatchException

@@ -147,3 +147,30 @@ merkle root at the same height confirms the same fact.
   time + 2 hours). The reported time is therefore an approximation of when
   the block was mined, accurate to within a few hours. For OTS, the relevant
   property is the upper bound, not the precise minute.
+
+## Caching and persistence
+
+`CachingBlockHeaderProvider` is a decorator over any other
+`BlockHeaderProvider`. In its in-memory-only form it amortises the cost of
+re-verifying the same proof; LRU eviction enforces a configurable cap.
+Faulted fetches are never cached — a transient failure does not poison the
+cache.
+
+For persistence across process restarts, supply an `IHeaderCacheStore` via
+the optional `store:` constructor parameter. The bundled
+`FileBackedHeaderCacheStore` writes one JSON record per line to a file the
+caller supplies. The store is consulted on miss before the inner provider;
+successful inner fetches write through to the store.
+
+**Trust propagates from the inner provider, not the store.** If your inner
+provider is `LocalNode`, the cached entries are `LocalNode`-trusted forever
+for that file. If your inner provider is `Explorer`, the cached entries are
+`Explorer`-trusted forever for that file — caching a third-party answer
+does not make it trustless. This is by design: if you cached an `Explorer`
+answer under a `LocalNode` label, a single rogue/compromised explorer
+response would silently poison every future verification.
+
+If you want a persistent trustless cache, run your verification with an
+inner `LocalNode` provider once and save the resulting store file. Future
+verifications against that file remain `LocalNode`-trusted even when the
+node is offline.

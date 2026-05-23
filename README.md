@@ -94,8 +94,6 @@ Not implemented yet:
 - Litecoin / Ethereum attestation verification (round-tripped, but the
   block-header providers don't speak those chains).
 - Multi-file merkle aggregation when stamping (the reference's batch-stamp mode).
-- A persistent local block-header cache to avoid hitting Esplora on every
-  verification.
 
 ## License
 
