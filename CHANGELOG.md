@@ -12,6 +12,11 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   `Timestamp.Merge` when the operand's `Msg` differs from the receiver's.
   Inherits from `InvalidOperationException` so existing catch blocks still
   match.
+- `OpenTimestamps.Serialization.VarUIntOverflowException` — typed exception
+  thrown when a LEB128 varuint on the wire exceeds the 64-bit value range.
+  Replaces the previous plain `DeserializationException` thrown by
+  `OtsReader.ReadVarUInt` in that case. `catch (DeserializationException)`
+  blocks continue to match.
 - `CalendarException(string message, int httpStatus, Exception? innerException)`
   constructor — chains the underlying cause when a non-success response body
   fails to read.
