@@ -31,6 +31,14 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   `CalendarException.InnerException` and the message reports `(unreadable: <type>)`
   instead of `(no body)`.
 
+### Changed
+
+- `CachingBlockHeaderProvider` now evicts the least-recently-used entry
+  when the cap is exceeded (was: clear the entire cache). Faulted lookups
+  are no longer cached — the next caller retries the inner provider, which
+  matters for transient network failures. Default `maxEntries` raised from
+  4096 to 8192 (≈800 days of Bitcoin blocks).
+
 ## 0.1.0 — initial release
 
 Public API introduced:
