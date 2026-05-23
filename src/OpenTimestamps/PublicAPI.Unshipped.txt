@@ -32,3 +32,8 @@ abstract OpenTimestamps.Verification.LitecoinBlockHeaderProvider.TrustCategory.g
 override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
 override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.Name.get -> string!
 override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider
+OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.JsonRpcEthereumBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! rpcEndpoint, string? username = null, string? password = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory

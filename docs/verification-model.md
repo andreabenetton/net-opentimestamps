@@ -148,6 +148,39 @@ merkle root at the same height confirms the same fact.
   the block was mined, accurate to within a few hours. For OTS, the relevant
   property is the upper bound, not the precise minute.
 
+## Multi-chain verification
+
+The library can verify attestations against Bitcoin, Litecoin, and Ethereum.
+Each chain has its own provider abstraction
+(`BlockHeaderProvider`, `LitecoinBlockHeaderProvider`,
+`EthereumBlockHeaderProvider`), passed to
+`VerificationService.VerifyMultiChainAsync` via `VerifyOptions`. A proof is
+reported `Verified` if **any** chain attestation in it was successfully
+verified.
+
+Trust posture per chain:
+
+- **Bitcoin** — `LocalNode` is trustless given an honest node; `TrustedHeaders`
+  is trustless given the supplied headers; `Explorer` is third-party-trusted.
+- **Litecoin** — same model as Bitcoin: an honest local Litecoin Core node
+  would be trustless; the bundled `LitecoinSpaceBlockHeaderProvider` is
+  `Explorer`-trusted.
+- **Ethereum** — **advisory only.** The OTS Ethereum attestation commits to
+  the block's `transactionsRoot`. Pre-Merge (block < 15537394), the
+  containing header was PoW-anchored and verifying the transactions root
+  matched a real, work-secured block. Post-Merge, the header containing
+  that field is no longer cryptographically PoW-anchored at the block
+  level — it's attested by validator signatures over the beacon chain.
+  This means a sufficiently-resourced attacker can produce a parallel
+  header containing whatever `transactionsRoot` they choose. We therefore
+  classify any `EthereumBlockHeaderProvider`'s trust category as
+  `Explorer` regardless of how it's hosted, and recommend Ethereum
+  verification be treated as informational alongside (never instead of)
+  Bitcoin verification.
+
+This matches the posture documented in the upstream Python reference,
+where `EthereumBlockHeaderAttestation` is annotated as "dubious".
+
 ## Caching and persistence
 
 `CachingBlockHeaderProvider` is a decorator over any other

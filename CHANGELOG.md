@@ -15,8 +15,13 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
     concrete provider against an Esplora-compatible Litecoin explorer
     (defaults to `https://litecoinspace.org/api/`). Trust category:
     `Explorer`.
-  - `OpenTimestamps.Verification.EthereumBlockHeaderProvider` (abstract;
-    concrete impl ships in MC.2).
+  - `OpenTimestamps.Verification.EthereumBlockHeaderProvider` (abstract).
+  - `OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider` —
+    concrete Ethereum provider against any Ethereum JSON-RPC endpoint
+    (e.g. Cloudflare's public ETH gateway, self-hosted geth/erigon).
+    Trust category: `Explorer` regardless of hosting — Ethereum
+    verification is advisory; see `docs/verification-model.md` for the
+    post-Merge caveat.
   - `OpenTimestamps.Verification.VerifyOptions` — bundles optional
     per-chain providers.
   - `VerificationService.VerifyMultiChainAsync` /
