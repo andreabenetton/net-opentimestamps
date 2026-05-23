@@ -144,33 +144,47 @@ jobs:
       - name: Enforce coverage floor
         shell: bash
         run: |
-          set -euo pipefail
-          report="$(find tests/OpenTimestamps.Tests/TestResults -name 'coverage.cobertura.xml' | head -n1)"
-          if [ -z "$report" ]; then
-            echo "No coverage report produced." >&2
-            exit 1
-          fi
-          echo "Coverage report: $report"
+          python3 - <<'PY'
+          import os, sys, glob, xml.etree.ElementTree as ET
 
-          # Dump the top-level <coverage ...> tag so log readers can see
-          # CI's actual numbers without needing to download the artifact.
-          # Use grep instead of head|tr|head to avoid SIGPIPE-with-pipefail.
-          echo "--- top-level coverage tag ---"
-          grep -o '<coverage[^>]*>' "$report" | head -n 1 || true
-          echo
-          echo "--- all cobertura files found ---"
-          find tests/OpenTimestamps.Tests/TestResults -name 'coverage.cobertura.xml' || true
+          min_line = float(os.environ["MIN_LINE_RATE"])
+          min_branch = float(os.environ["MIN_BRANCH_RATE"])
 
-          # Top-level <coverage line-rate="..." branch-rate="..."> is the project total.
-          line_rate=$(grep -o 'line-rate="[0-9.]*"' "$report" | head -n 1 | sed -E 's/^line-rate="([0-9.]+)"$/\1/')
-          branch_rate=$(grep -o 'branch-rate="[0-9.]*"' "$report" | head -n 1 | sed -E 's/^branch-rate="([0-9.]+)"$/\1/')
+          reports = sorted(glob.glob(
+              "tests/OpenTimestamps.Tests/TestResults/**/coverage.cobertura.xml",
+              recursive=True))
+          print(f"[gate] found {len(reports)} cobertura report(s):")
+          for r in reports:
+              print(f"  - {r}")
+          if not reports:
+              print("[gate] FAIL: no coverage report produced")
+              sys.exit(1)
 
-          echo "line-rate=$line_rate (min ${MIN_LINE_RATE})"
-          echo "branch-rate=$branch_rate (min ${MIN_BRANCH_RATE})"
+          report = reports[0]
+          tree = ET.parse(report)
+          root = tree.getroot()
+          print(f"[gate] root tag: {root.tag}  attrs: {dict(root.attrib)}")
 
-          awk -v l="$line_rate" -v b="$branch_rate" -v ml="$MIN_LINE_RATE" -v mb="$MIN_BRANCH_RATE" \
-            'BEGIN { if (l+0 < ml+0) { printf "line coverage %.4f below floor %.4f\n", l, ml; exit 1 }
-                     if (b+0 < mb+0) { printf "branch coverage %.4f below floor %.4f\n", b, mb; exit 1 } }'
+          # Cobertura's top-level <coverage> carries line-rate / branch-rate.
+          try:
+              line = float(root.attrib["line-rate"])
+              branch = float(root.attrib["branch-rate"])
+          except KeyError as ex:
+              print(f"[gate] FAIL: missing {ex} on root; cobertura shape unexpected")
+              sys.exit(1)
+
+          print(f"[gate] line-rate={line:.4f}  (min {min_line})")
+          print(f"[gate] branch-rate={branch:.4f}  (min {min_branch})")
+
+          fail = False
+          if line < min_line:
+              print(f"[gate] FAIL: line coverage {line:.4f} < {min_line:.4f}")
+              fail = True
+          if branch < min_branch:
+              print(f"[gate] FAIL: branch coverage {branch:.4f} < {min_branch:.4f}")
+              fail = True
+          sys.exit(1 if fail else 0)
+          PY
 
   cli-smoke:
     name: CLI smoke (${{ matrix.os }})
