@@ -7,7 +7,9 @@ namespace OpenTimestamps.Cli.Commands;
 internal static class StampCommand
 {
     public const string Usage =
-        "usage: ots stamp <file> [--calendar <url>]... [--quorum N] [--output <file.ots>]";
+        "usage: ots stamp <file>... [--calendar <url>]... [--quorum N] [--output <file.ots>]\n" +
+        "       --output is honoured only when stamping a single file; batch invocations\n" +
+        "       always write each file's proof next to it as <file>.ots.";
 
     public static async Task<int> RunAsync(string[] args, HttpClient http, CancellationToken ct)
     {
@@ -17,16 +19,19 @@ internal static class StampCommand
             .Option("--output");
         parser.Parse();
 
-        if (parser.Positionals.Count != 1)
+        if (parser.Positionals.Count < 1)
         {
             throw new CliUsageException("stamp", Usage);
         }
 
-        string filePath = parser.Positionals[0];
-        if (!File.Exists(filePath))
+        IReadOnlyList<string> filePaths = parser.Positionals;
+        foreach (string p in filePaths)
         {
-            Console.Error.WriteLine($"ots stamp: file not found: {filePath}");
-            return ExitCode.OperationFailed;
+            if (!File.Exists(p))
+            {
+                Console.Error.WriteLine($"ots stamp: file not found: {p}");
+                return ExitCode.OperationFailed;
+            }
         }
 
         IReadOnlyList<string> calendarUris = parser.GetOptions("--calendar").Count > 0
@@ -44,11 +49,28 @@ internal static class StampCommand
             throw new CliUsageException("stamp", "--quorum must be >= 1.");
         }
 
-        string outputPath = parser.GetOption("--output") ?? filePath + ".ots";
-        if (File.Exists(outputPath))
+        string? explicitOutput = parser.GetOption("--output");
+        if (explicitOutput is not null && filePaths.Count > 1)
         {
-            Console.Error.WriteLine($"ots stamp: refusing to overwrite existing {outputPath}");
-            return ExitCode.OperationFailed;
+            Console.Error.WriteLine(
+                "ots stamp: --output is honoured only when stamping a single file; " +
+                "batch invocations write each file's proof next to it.");
+            return ExitCode.UsageError;
+        }
+
+        // Precompute output paths and refuse if any already exists.
+        var outputPaths = new string[filePaths.Count];
+        for (int i = 0; i < filePaths.Count; i++)
+        {
+            outputPaths[i] = (filePaths.Count == 1 && explicitOutput is not null)
+                ? explicitOutput
+                : filePaths[i] + ".ots";
+
+            if (File.Exists(outputPaths[i]))
+            {
+                Console.Error.WriteLine($"ots stamp: refusing to overwrite existing {outputPaths[i]}");
+                return ExitCode.OperationFailed;
+            }
         }
 
         var calendars = new List<CalendarClient>(calendarUris.Count);
@@ -64,10 +86,10 @@ internal static class StampCommand
         }
 
         var svc = new StampService();
-        DetachedTimestampFile dtf;
+        IReadOnlyList<DetachedTimestampFile> dtfs;
         try
         {
-            dtf = await svc.StampFileAsync(filePath, calendars, quorum, ct).ConfigureAwait(false);
+            dtfs = await svc.StampManyAsync(filePaths, calendars, quorum, ct).ConfigureAwait(false);
         }
         catch (AggregateException ex)
         {
@@ -85,15 +107,25 @@ internal static class StampCommand
             return ExitCode.OperationFailed;
         }
 
-        dtf.SerializeToFile(outputPath);
-        Console.Out.WriteLine($"Stamped {filePath} -> {outputPath}");
-        Console.Out.WriteLine(
-            $"File digest: {Convert.ToHexString(dtf.FileDigest).ToLowerInvariant()}");
-        foreach (var (msg, att) in dtf.Timestamp.AllAttestations())
+        for (int i = 0; i < dtfs.Count; i++)
         {
-            if (att is Attestations.PendingAttestation p)
+            dtfs[i].SerializeToFile(outputPaths[i]);
+            Console.Out.WriteLine($"Stamped {filePaths[i]} -> {outputPaths[i]}");
+            Console.Out.WriteLine(
+                $"  file digest: {Convert.ToHexString(dtfs[i].FileDigest).ToLowerInvariant()}");
+        }
+
+        // Calendar pending list is identical across all DTFs in a batch
+        // (they share the merkle root the calendar replied to). Print once.
+        if (dtfs.Count > 0)
+        {
+            var seenUris = new HashSet<string>();
+            foreach (var (_, att) in dtfs[0].Timestamp.AllAttestations())
             {
-                Console.Out.WriteLine($"  pending calendar: {p.Uri}");
+                if (att is Attestations.PendingAttestation p && seenUris.Add(p.Uri))
+                {
+                    Console.Out.WriteLine($"  pending calendar: {p.Uri}");
+                }
             }
         }
 

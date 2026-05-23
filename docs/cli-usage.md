@@ -49,21 +49,42 @@ digest, and every operation chain leading to each attestation.
 ots info hello-world.txt.ots
 ```
 
-## `ots stamp <file> [--calendar URL]... [--quorum N] [--output PATH]`
+## `ots stamp <file>... [--calendar URL]... [--quorum N] [--output PATH]`
 
-Hash `<file>` with SHA-256, append a fresh 16-byte privacy nonce, hash again,
-submit the resulting commitment to each calendar, and write the merged proof
-to `<file>.ots` (or `--output PATH`).
+Hash each `<file>` with SHA-256, append a fresh per-file 16-byte privacy nonce,
+hash again to get a per-file commitment. When stamping a single file, the
+commitment is submitted directly to each calendar. When stamping multiple
+files, the per-file commitments are folded into a merkle tree and only the
+root is submitted — one calendar round-trip for the whole batch — and each
+file's proof records its leaf-to-root merkle path.
 
 | Option                | Default                                | Notes                                                              |
 |-----------------------|----------------------------------------|--------------------------------------------------------------------|
 | `--calendar URL`      | the four default aggregators            | May repeat. Each URL is contacted in parallel.                     |
 | `--quorum N`          | `2`                                     | The minimum number of calendars that must accept the stamp.        |
-| `--output PATH`       | `<file>.ots`                            | Refuses to overwrite an existing file.                             |
+| `--output PATH`       | `<file>.ots`                            | Single-file only. Batch invocations always write each file's proof as `<file>.ots` next to it. Refuses to overwrite an existing file. |
 
-`ots stamp` produces an `INCOMPLETE` proof — it contains pending attestations
-from each calendar. Run `ots upgrade <proof.ots>` later (typically a few
-hours after stamping) to merge in the Bitcoin block-header attestation.
+`ots stamp` produces an `INCOMPLETE` proof — each output `.ots` contains
+pending attestations from the calendars that accepted the batch. Run
+`ots upgrade <proof.ots>` later (typically a few hours after stamping) to
+merge in the Bitcoin block-header attestation. Every file in a batch
+verifies independently after the upgrade — they share the calendar
+attestation via the merkle root.
+
+Batch example:
+
+```
+$ ots stamp doc1.pdf doc2.pdf doc3.pdf
+Stamped doc1.pdf -> doc1.pdf.ots
+  file digest: abc...
+Stamped doc2.pdf -> doc2.pdf.ots
+  file digest: def...
+Stamped doc3.pdf -> doc3.pdf.ots
+  file digest: 012...
+  pending calendar: https://alice.btc.calendar.opentimestamps.org
+  pending calendar: https://bob.btc.calendar.opentimestamps.org
+Run `ots upgrade <proof>` later (typically a few hours) to merge in the Bitcoin attestation.
+```
 
 ## `ots upgrade <proof.ots> [--allow-calendar PATTERN]... [--no-backup]`
 

@@ -97,9 +97,9 @@ cross-checked against the Python CLI when `OTS_PYTHON_REF=1` is set.
 
 Not implemented yet:
 
-- Litecoin / Ethereum attestation verification (round-tripped, but the
-  block-header providers don't speak those chains).
-- Multi-file merkle aggregation when stamping (the reference's batch-stamp mode).
+- (none known at this time — Litecoin and Ethereum verification, multi-file
+  merkle batch stamping, and persistent block-header caching are all in
+  the 1.0 surface.)
 
 ## License
 
