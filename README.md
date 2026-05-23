@@ -66,6 +66,22 @@ Exit codes:
 
 See [`docs/cli-usage.md`](docs/cli-usage.md) for full flag reference.
 
+## Samples
+
+Runnable end-to-end programs live under [`samples/`](samples/). The most
+useful starting point is [`samples/StampVerifyDemo`](samples/StampVerifyDemo/),
+a single-file console app exercising the full stamp → upgrade → verify
+flow against the public default calendars and a Bitcoin block explorer:
+
+```
+dotnet run --project samples/StampVerifyDemo -- path/to/your/file
+```
+
+The sample is intentionally kept outside `OpenTimestamps.sln` so the main
+solution build doesn't drag it in — see [`samples/README.md`](samples/README.md)
+for the trust-category and timing caveats (fresh stamps need ~1–3 hours
+before calendars anchor them on-chain).
+
 ## Building and testing
 
 ```
