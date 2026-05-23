@@ -55,3 +55,20 @@ public sealed class OpMessageException : Exception
     {
     }
 }
+
+/// <summary>
+/// Raised when a LEB128 varuint on the wire exceeds the 64-bit value range.
+/// </summary>
+/// <remarks>
+/// The .ots wire format permits varuints up to 64 bits; a 10th continuation byte
+/// would carry data the receiver cannot represent. Treat this as a malformed
+/// input rather than an out-of-bounds condition the caller could meaningfully
+/// recover from.
+/// </remarks>
+public sealed class VarUIntOverflowException : DeserializationException
+{
+    public VarUIntOverflowException()
+        : base("varuint overflows 64 bits.")
+    {
+    }
+}

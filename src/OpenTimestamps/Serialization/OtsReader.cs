@@ -92,7 +92,7 @@ public sealed class OtsReader
             shift += 7;
             if (shift >= 64)
             {
-                throw new DeserializationException("varuint overflows 64 bits.");
+                throw new VarUIntOverflowException();
             }
         }
     }
