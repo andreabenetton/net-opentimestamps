@@ -9,6 +9,15 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <!--
+      Single source of truth for version. Override at the command line for
+      pre-release builds: dotnet pack ... -p:VersionSuffix=alpha.1
+      Assembly/FileVersion never include the suffix; PackageVersion does.
+    -->
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
     <Authors>net-opentimestamps contributors</Authors>
     <Company>net-opentimestamps</Company>
     <Copyright>Licensed under the GNU Lesser General Public License v3.0 or later.</Copyright>
