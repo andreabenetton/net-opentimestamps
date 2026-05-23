@@ -99,6 +99,6 @@ Not implemented yet:
 
 ## License
 
-LGPL-3.0-or-later, matching the upstream OpenTimestamps reference clients.
-See [LICENSE](LICENSE) for the LGPL-3.0 text and [LICENSE.GPL](LICENSE.GPL)
-for the GPL-3.0 text that the LGPL incorporates by reference.
+LGPL-3.0-or-later (SPDX identifier), matching the upstream OpenTimestamps
+reference clients. See [LICENSE](LICENSE) for the LGPL-3.0 text; the LGPL
+incorporates the GPL-3.0 by reference (see <https://www.gnu.org/licenses/gpl-3.0.txt>).
