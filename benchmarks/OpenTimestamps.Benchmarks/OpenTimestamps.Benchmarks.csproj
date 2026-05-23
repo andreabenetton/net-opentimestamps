@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>OpenTimestamps.Benchmarks</RootNamespace>
+    <NoWarn>$(NoWarn);CA1707;CA1303</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenTimestamps\OpenTimestamps.csproj" />
+  </ItemGroup>
+
+  <!--
+    Reuse the test fixtures (linked, not copied) to keep one source of truth.
+    Mirrors the path layout the bench code reads from AppContext.BaseDirectory.
+  -->
+  <ItemGroup>
+    <None Include="..\..\tests\OpenTimestamps.Tests\fixtures\**\*">
+      <Link>fixtures\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
