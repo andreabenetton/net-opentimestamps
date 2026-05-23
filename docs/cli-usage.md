@@ -80,26 +80,35 @@ again later.
 Off-whitelist pending URIs are surfaced as "Skipped" rather than silently
 contacted.
 
-## `ots verify <file> [--proof PATH] [--explorer URL | --bitcoin-rpc URL [--rpc-user U --rpc-password P]]`
+## `ots verify <file> [--proof PATH] [--explorer URL | --bitcoin-rpc URL [--rpc-user U --rpc-password P]] [--litecoin-explorer URL]`
 
 Hash `<file>`, compare it to the digest committed in the proof, then walk the
-tree and check every Bitcoin attestation's commitment against the merkle
+tree and check every chain attestation's commitment against the merkle
 root of the named block.
 
 | Option                                 | Default                | Notes                                                                                            |
 |----------------------------------------|------------------------|--------------------------------------------------------------------------------------------------|
 | `--proof PATH`                         | `<file>.ots`            | Path to the proof.                                                                              |
-| `--explorer URL`                       | (off)                   | Use an Esplora-compatible block explorer for headers. **Trust category: `Explorer`** (not trustless). |
-| `--bitcoin-rpc URL`                    | (off)                   | Use a Bitcoin Core JSON-RPC endpoint. **Trust category: `LocalNode`** (trustless given the node).     |
-| `--rpc-user U` / `--rpc-password P`    | (none)                  | Basic-auth credentials for the RPC endpoint.                                                    |
+| `--explorer URL`                       | (off)                   | Bitcoin: Esplora-compatible block explorer. **Trust category: `Explorer`** (not trustless).      |
+| `--bitcoin-rpc URL`                    | (off)                   | Bitcoin: Bitcoin Core JSON-RPC endpoint. **Trust category: `LocalNode`** (trustless given the node). |
+| `--rpc-user U` / `--rpc-password P`    | (none)                  | Basic-auth credentials for the Bitcoin RPC endpoint.                                            |
+| `--litecoin-explorer URL`              | (off)                   | Litecoin: Esplora-compatible Litecoin explorer (e.g. `https://litecoinspace.org/api/`). **Trust category: `Explorer`**. |
 
-When no header source is supplied, `ots verify` reports `ANCHORED` (proof
-contains Bitcoin attestations but they were not checked) or `INCOMPLETE`
-(proof contains only pending attestations) and exits with code `2`.
+A proof is `VERIFIED` if **any** chain attestation in it was successfully
+verified against the corresponding provider — Bitcoin, Litecoin, or
+Ethereum. If you've supplied a Litecoin provider but not a Bitcoin one,
+Bitcoin attestations show in the printout as merely anchored, while Litecoin
+attestations get verified — and the file is reported `VERIFIED` if even one
+Litecoin attestation matches its block's merkle root.
 
-When `--explorer` is used, the output includes a note that verification used
-a block explorer and is therefore not trustless. Use `--bitcoin-rpc` against
-a node you control for trustless verification.
+When no header source is supplied for any chain, `ots verify` reports
+`ANCHORED` (proof contains chain attestations but they were not checked) or
+`INCOMPLETE` (proof contains only pending attestations) and exits with code `2`.
+
+When an `Explorer` provider is used, the output includes a note that
+verification used a block explorer and is therefore not trustless. Use
+`--bitcoin-rpc` (or a self-hosted Litecoin RPC, once supported) against a
+node you control for trustless verification.
 
 ### Example output
 
@@ -125,8 +134,18 @@ An anchored-but-unchecked report:
 
 ```
 $ ots verify hello-world.txt
-ANCHORED: hello-world.txt contains Bitcoin attestations but no block-header source was configured. Re-run with --explorer or --bitcoin-rpc to verify against headers.
+ANCHORED: hello-world.txt contains chain attestations but no block-header source for the relevant chain was configured. Re-run with --explorer, --bitcoin-rpc, or --litecoin-explorer to verify against headers.
   bitcoin block 358391
 $ echo $?
 2
+```
+
+A multi-chain proof verified via Litecoin (when the Bitcoin attestation is
+also present but no Bitcoin provider was supplied):
+
+```
+$ ots verify file.txt --litecoin-explorer https://litecoinspace.org/api/
+VERIFIED: file.txt existed at or before 2024-XX-XX HH:MM:SS UTC.
+  litecoin block 2500000 time 2024-XX-XX HH:MM:SS UTC (source: litecoinspace.org, trust: Explorer)
+  note: verification used a block explorer (Explorer trust category); for fully trustless verification, use a Bitcoin Core node.
 ```

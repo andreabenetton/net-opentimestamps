@@ -6,7 +6,9 @@ namespace OpenTimestamps.Cli.Commands;
 internal static class VerifyCommand
 {
     public const string Usage =
-        "usage: ots verify [--json] <file> [--proof <file.ots>] [--explorer <url> | --bitcoin-rpc <url> [--rpc-user U --rpc-password P]]";
+        "usage: ots verify [--json] <file> [--proof <file.ots>]" +
+        " [--explorer <url> | --bitcoin-rpc <url> [--rpc-user U --rpc-password P]]" +
+        " [--litecoin-explorer <url>]";
 
     public static async Task<int> RunAsync(string[] args, HttpClient http, CancellationToken ct)
     {
@@ -16,6 +18,7 @@ internal static class VerifyCommand
             .Option("--bitcoin-rpc")
             .Option("--rpc-user")
             .Option("--rpc-password")
+            .Option("--litecoin-explorer")
             .Flag("--json");
         parser.Parse();
 
@@ -58,11 +61,28 @@ internal static class VerifyCommand
             return ExitCode.UsageError;
         }
 
+        LitecoinBlockHeaderProvider? litecoin = BuildLitecoinProvider(parser, http);
+
         var svc = new VerificationService();
         VerificationResult result;
         try
         {
-            result = await svc.VerifyFileAsync(dtf, filePath, provider, ct).ConfigureAwait(false);
+            if (litecoin is not null)
+            {
+                result = await svc.VerifyFileMultiChainAsync(
+                    dtf,
+                    filePath,
+                    new VerifyOptions
+                    {
+                        BitcoinProvider = provider,
+                        LitecoinProvider = litecoin,
+                    },
+                    ct).ConfigureAwait(false);
+            }
+            else
+            {
+                result = await svc.VerifyFileAsync(dtf, filePath, provider, ct).ConfigureAwait(false);
+            }
         }
         catch (FileDigestMismatchException ex)
         {
@@ -118,6 +138,19 @@ internal static class VerifyCommand
         return null;
     }
 
+    private static LitecoinBlockHeaderProvider? BuildLitecoinProvider(
+        ArgParser parser, HttpClient http)
+    {
+        string? explorer = parser.GetOption("--litecoin-explorer");
+        if (explorer is null)
+        {
+            return null;
+        }
+
+        return new LitecoinSpaceBlockHeaderProvider(
+            http, new Uri(explorer, UriKind.Absolute));
+    }
+
     private static int PrintAndExit(VerificationResult result, BlockHeaderProvider? provider, string filePath)
     {
         switch (result.Status)
@@ -134,11 +167,20 @@ internal static class VerifyCommand
 
             case TimestampStatus.Anchored:
                 Console.Out.WriteLine(
-                    $"ANCHORED: {filePath} contains Bitcoin attestations but no block-header source " +
-                    "was configured. Re-run with --explorer or --bitcoin-rpc to verify against headers.");
+                    $"ANCHORED: {filePath} contains chain attestations but no block-header source " +
+                    "for the relevant chain was configured. Re-run with --explorer, --bitcoin-rpc, " +
+                    "or --litecoin-explorer to verify against headers.");
                 foreach (var b in result.BitcoinAttestations)
                 {
                     Console.Out.WriteLine($"  bitcoin block {b.Height}");
+                }
+                foreach (var l in result.LitecoinAttestations)
+                {
+                    Console.Out.WriteLine($"  litecoin block {l.Height}");
+                }
+                foreach (var e in result.EthereumAttestations)
+                {
+                    Console.Out.WriteLine($"  ethereum block {e.Height}");
                 }
 
                 return ExitCode.VerificationFailed;
@@ -151,8 +193,9 @@ internal static class VerifyCommand
                         $"{earliest!.Value.UtcDateTime:yyyy-MM-dd HH:mm:ss} UTC.");
                     foreach (var v in result.VerifiedAttestations)
                     {
+                        string chain = v.Chain.ToString().ToLowerInvariant();
                         Console.Out.WriteLine(
-                            $"  bitcoin block {v.Height} time {v.BlockTime.UtcDateTime:yyyy-MM-dd HH:mm:ss} UTC " +
+                            $"  {chain} block {v.Height} time {v.BlockTime.UtcDateTime:yyyy-MM-dd HH:mm:ss} UTC " +
                             $"(source: {v.ProviderName}, trust: {v.TrustCategory})");
                     }
 
