@@ -23,7 +23,7 @@ OpenTimestamps.Attestations.UnknownAttestation.PayloadArray() -> byte[]!
 OpenTimestamps.Attestations.UnknownAttestation.UnknownAttestation(byte[]! tag, byte[]! payload) -> void
 OpenTimestamps.Calendars.CalendarClient
 OpenTimestamps.Calendars.CalendarClient.BaseUri.get -> System.Uri!
-OpenTimestamps.Calendars.CalendarClient.CalendarClient(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, string? userAgent = null) -> void
+OpenTimestamps.Calendars.CalendarClient.CalendarClient(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, string? userAgent = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Calendars.CalendarClient.GetTimestampAsync(byte[]! commitment, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Timestamp?>!
 OpenTimestamps.Calendars.CalendarClient.SubmitDigestAsync(byte[]! digest, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Timestamp!>!
 OpenTimestamps.Calendars.CalendarException
@@ -112,7 +112,7 @@ OpenTimestamps.Stamping.StampService
 OpenTimestamps.Stamping.StampService.StampBytesAsync(byte[]! data, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
 OpenTimestamps.Stamping.StampService.StampDigestAsync(byte[]! digest, OpenTimestamps.Ops.CryptOp! fileHashOp, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
 OpenTimestamps.Stamping.StampService.StampFileAsync(string! filePath, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
-OpenTimestamps.Stamping.StampService.StampService(System.Func<byte[]!>? nonceProvider = null) -> void
+OpenTimestamps.Stamping.StampService.StampService(System.Func<byte[]!>? nonceProvider = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Stamping.UpgradeResult
 OpenTimestamps.Stamping.UpgradeResult.ChangedAnything.get -> bool
 OpenTimestamps.Stamping.UpgradeResult.Errors.get -> System.Collections.Generic.IReadOnlyList<string!>!
@@ -122,7 +122,7 @@ OpenTimestamps.Stamping.UpgradeResult.StillPending.get -> System.Collections.Gen
 OpenTimestamps.Stamping.UpgradeResult.UpgradeResult(System.Collections.Generic.IReadOnlyList<string!>! resolved, System.Collections.Generic.IReadOnlyList<string!>! stillPending, System.Collections.Generic.IReadOnlyList<string!>! skipped, System.Collections.Generic.IReadOnlyList<string!>! errors) -> void
 OpenTimestamps.Stamping.UpgradeService
 OpenTimestamps.Stamping.UpgradeService.UpgradeAsync(OpenTimestamps.DetachedTimestampFile! dtf, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Stamping.UpgradeResult!>!
-OpenTimestamps.Stamping.UpgradeService.UpgradeService(OpenTimestamps.Calendars.CalendarWhitelist! whitelist, System.Func<System.Uri!, OpenTimestamps.Calendars.CalendarClient!>! clientFactory) -> void
+OpenTimestamps.Stamping.UpgradeService.UpgradeService(OpenTimestamps.Calendars.CalendarWhitelist! whitelist, System.Func<System.Uri!, OpenTimestamps.Calendars.CalendarClient!>! clientFactory, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Timestamp
 OpenTimestamps.Timestamp.AllAttestations() -> System.Collections.Generic.IEnumerable<(byte[]! Msg, OpenTimestamps.Attestations.TimeAttestation! Attestation)>!
 OpenTimestamps.Timestamp.AllNodes() -> System.Collections.Generic.IEnumerable<OpenTimestamps.Timestamp!>!
@@ -138,7 +138,7 @@ OpenTimestamps.TimestampMergeException
 OpenTimestamps.TimestampMergeException.TimestampMergeException(string! message) -> void
 OpenTimestamps.TimestampMergeException.TimestampMergeException(string! message, System.Exception! innerException) -> void
 OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider
-OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.BitcoinCoreRpcBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! rpcEndpoint, string? username = null, string? password = null) -> void
+OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.BitcoinCoreRpcBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! rpcEndpoint, string? username = null, string? password = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.BlockHeader
 OpenTimestamps.Verification.BlockHeader.<Clone>$() -> OpenTimestamps.Verification.BlockHeader!
 OpenTimestamps.Verification.BlockHeader.BlockHeader(ulong Height, byte[]! MerkleRoot, System.DateTimeOffset Time) -> void
@@ -155,9 +155,9 @@ OpenTimestamps.Verification.BlockHeaderProvider
 OpenTimestamps.Verification.BlockHeaderProvider.BlockHeaderProvider() -> void
 OpenTimestamps.Verification.CachingBlockHeaderProvider
 OpenTimestamps.Verification.CachingBlockHeaderProvider.CachedCount.get -> int
-OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192) -> void
+OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.EsploraBlockHeaderProvider
-OpenTimestamps.Verification.EsploraBlockHeaderProvider.EsploraBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri) -> void
+OpenTimestamps.Verification.EsploraBlockHeaderProvider.EsploraBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.FileDigestMismatchException
 OpenTimestamps.Verification.FileDigestMismatchException.ActualDigest.get -> byte[]!
 OpenTimestamps.Verification.FileDigestMismatchException.ExpectedDigest.get -> byte[]!
@@ -182,7 +182,7 @@ OpenTimestamps.Verification.VerificationResult.VerificationResult(OpenTimestamps
 OpenTimestamps.Verification.VerificationResult.VerifiedAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Verification.VerifiedAttestation!>!
 OpenTimestamps.Verification.VerificationResult.Warnings.get -> System.Collections.Generic.IReadOnlyList<string!>!
 OpenTimestamps.Verification.VerificationService
-OpenTimestamps.Verification.VerificationService.VerificationService() -> void
+OpenTimestamps.Verification.VerificationService.VerificationService(Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.VerificationService.VerifyAsync(OpenTimestamps.DetachedTimestampFile! dtf, byte[]! fileBytes, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
 OpenTimestamps.Verification.VerificationService.VerifyFileAsync(OpenTimestamps.DetachedTimestampFile! dtf, string! filePath, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
 OpenTimestamps.Verification.VerifiedAttestation

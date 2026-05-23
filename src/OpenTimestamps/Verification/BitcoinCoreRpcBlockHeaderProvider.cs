@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace OpenTimestamps.Verification;
 
@@ -19,9 +21,14 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
     private readonly HttpClient _http;
     private readonly Uri _rpcEndpoint;
     private readonly string? _authHeader;
+    private readonly ILogger _logger;
 
     public BitcoinCoreRpcBlockHeaderProvider(
-        HttpClient httpClient, Uri rpcEndpoint, string? username = null, string? password = null)
+        HttpClient httpClient,
+        Uri rpcEndpoint,
+        string? username = null,
+        string? password = null,
+        ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(rpcEndpoint);
@@ -32,6 +39,7 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
 
         _http = httpClient;
         _rpcEndpoint = rpcEndpoint;
+        _logger = logger ?? NullLogger.Instance;
 
         if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
         {
@@ -83,6 +91,7 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
     private async Task<JsonDocument> CallJsonAsync(
         string method, object[] parameters, CancellationToken cancellationToken)
     {
+        _logger.LogTrace("Bitcoin Core RPC {Method} @ {Endpoint}", method, _rpcEndpoint);
         string body = JsonSerializer.Serialize(new
         {
             jsonrpc = "1.0",

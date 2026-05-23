@@ -1,4 +1,6 @@
 using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenTimestamps.Calendars;
 using OpenTimestamps.Ops;
 
@@ -24,14 +26,17 @@ public sealed class StampService
     public const int NonceLength = 16;
 
     private readonly Func<byte[]> _nonceProvider;
+    private readonly ILogger _logger;
 
     /// <param name="nonceProvider">
     /// Source of nonce bytes. Defaults to a cryptographically secure RNG. Tests
     /// may inject a deterministic source.
     /// </param>
-    public StampService(Func<byte[]>? nonceProvider = null)
+    /// <param name="logger">Optional <see cref="ILogger"/> for structured diagnostics; defaults to <see cref="NullLogger"/>.</param>
+    public StampService(Func<byte[]>? nonceProvider = null, ILogger? logger = null)
     {
         _nonceProvider = nonceProvider ?? GenerateSecureNonce;
+        _logger = logger ?? NullLogger.Instance;
     }
 
     /// <summary>
@@ -168,11 +173,25 @@ public sealed class StampService
 
         if (responses.Count < quorum)
         {
+            _logger.LogError(
+                "Stamp quorum not met: {Accepted}/{Total} accepted, quorum {Quorum}; {Errors} errors",
+                responses.Count, calendarList.Length, quorum, errors.Count);
             throw new AggregateException(
                 $"Only {responses.Count} of {calendarList.Length} calendars accepted the stamp; " +
                 $"quorum was {quorum}.",
                 errors);
         }
+
+        if (errors.Count > 0)
+        {
+            _logger.LogWarning(
+                "Stamp succeeded with quorum {Quorum} but {Errors} calendar(s) failed",
+                quorum, errors.Count);
+        }
+
+        _logger.LogDebug(
+            "Stamp accepted by {Accepted}/{Total} calendars",
+            responses.Count, calendarList.Length);
 
         // Build the local tree.
         var root = new Timestamp(digest);

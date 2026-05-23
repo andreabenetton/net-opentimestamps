@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace OpenTimestamps.Verification;
 
 /// <summary>
@@ -27,6 +30,7 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
 {
     private readonly BlockHeaderProvider _inner;
     private readonly int _maxEntries;
+    private readonly ILogger _logger;
     private readonly object _lock = new();
     private readonly Dictionary<ulong, LinkedListNode<Entry>> _index = [];
     private readonly LinkedList<Entry> _lru = new();
@@ -36,7 +40,11 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
     /// Cap on the number of cached entries; LRU eviction once exceeded.
     /// Defaults to 8192 (≈800 days of Bitcoin blocks).
     /// </param>
-    public CachingBlockHeaderProvider(BlockHeaderProvider inner, int maxEntries = 8192)
+    /// <param name="logger">Optional <see cref="ILogger"/> for cache-hit / cache-miss diagnostics; defaults to <see cref="NullLogger"/>.</param>
+    public CachingBlockHeaderProvider(
+        BlockHeaderProvider inner,
+        int maxEntries = 8192,
+        ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(inner);
         if (maxEntries < 1)
@@ -46,6 +54,7 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
 
         _inner = inner;
         _maxEntries = maxEntries;
+        _logger = logger ?? NullLogger.Instance;
     }
 
     public override TrustCategory TrustCategory => _inner.TrustCategory;
@@ -76,11 +85,13 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
                 _lru.Remove(hit);
                 _lru.AddFirst(hit);
                 task = hit.Value.Task;
+                _logger.LogTrace("Cache hit for block height {Height}", height);
             }
             else
             {
                 // Start the fetch; share the Task so concurrent first-callers
                 // for the same height don't both hit the inner provider.
+                _logger.LogTrace("Cache miss for block height {Height}; forwarding to {Inner}", height, _inner.Name);
                 task = _inner.GetHeaderAsync(height, cancellationToken);
                 var entry = new Entry(height, task);
                 LinkedListNode<Entry> node = _lru.AddFirst(entry);

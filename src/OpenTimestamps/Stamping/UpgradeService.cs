@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenTimestamps.Attestations;
 using OpenTimestamps.Calendars;
 
@@ -11,15 +13,21 @@ public sealed class UpgradeService
 {
     private readonly CalendarWhitelist _whitelist;
     private readonly Func<Uri, CalendarClient> _clientFactory;
+    private readonly ILogger _logger;
 
     /// <param name="whitelist">URI whitelist used to decide which calendars to contact for upgrade.</param>
     /// <param name="clientFactory">Factory that builds a <see cref="CalendarClient"/> per URI.</param>
-    public UpgradeService(CalendarWhitelist whitelist, Func<Uri, CalendarClient> clientFactory)
+    /// <param name="logger">Optional <see cref="ILogger"/> for structured diagnostics; defaults to <see cref="NullLogger"/>.</param>
+    public UpgradeService(
+        CalendarWhitelist whitelist,
+        Func<Uri, CalendarClient> clientFactory,
+        ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(whitelist);
         ArgumentNullException.ThrowIfNull(clientFactory);
         _whitelist = whitelist;
         _clientFactory = clientFactory;
+        _logger = logger ?? NullLogger.Instance;
     }
 
     /// <summary>
@@ -70,6 +78,8 @@ public sealed class UpgradeService
 
                 if (!_whitelist.IsAllowed(pending.Uri))
                 {
+                    _logger.LogWarning(
+                        "Skipping off-whitelist calendar URI: {Uri}", pending.Uri);
                     skipped.Add($"{pending.Uri} (not on whitelist)");
                     continue;
                 }
@@ -93,17 +103,22 @@ public sealed class UpgradeService
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
+                    _logger.LogWarning(
+                        ex, "Upgrade fetch failed for {Uri}", pending.Uri);
                     errors.Add($"{pending.Uri}: {ex.Message}");
                     continue;
                 }
 
                 if (upgrade is null)
                 {
+                    _logger.LogDebug(
+                        "Calendar {Uri} still has no Bitcoin attestation yet", pending.Uri);
                     stillPending.Add(pending.Uri);
                     continue;
                 }
 
                 node.Merge(upgrade);
+                _logger.LogInformation("Resolved pending attestation via {Uri}", pending.Uri);
                 resolved.Add(pending.Uri);
                 anyResolved = true;
             }
