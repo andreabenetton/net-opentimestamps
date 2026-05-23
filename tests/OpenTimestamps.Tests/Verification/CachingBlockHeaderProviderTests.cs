@@ -57,10 +57,72 @@ public sealed class CachingBlockHeaderProviderTests
         Assert.Equal(inner.TrustCategory, cache.TrustCategory);
     }
 
+    [Fact]
+    public async Task LRU_Evicts_Least_Recently_Used_When_Over_Cap()
+    {
+        var inner = new CountingProvider();
+        var cache = new CachingBlockHeaderProvider(inner, maxEntries: 3);
+
+        await cache.GetHeaderAsync(1UL);  // [1]
+        await cache.GetHeaderAsync(2UL);  // [2,1]
+        await cache.GetHeaderAsync(3UL);  // [3,2,1]
+        await cache.GetHeaderAsync(1UL);  // touch 1 → [1,3,2]
+        await cache.GetHeaderAsync(4UL);  // [4,1,3,2] over cap → evict 2 → [4,1,3]
+
+        Assert.Equal(3, cache.CachedCount);
+        Assert.Equal(4, inner.CallCount);
+
+        // Hitting 2 again is a miss (was evicted)
+        await cache.GetHeaderAsync(2UL);
+        Assert.Equal(5, inner.CallCount);
+
+        // Hitting 1 again is a hit (still in cache)
+        await cache.GetHeaderAsync(1UL);
+        Assert.Equal(5, inner.CallCount);
+    }
+
+    [Fact]
+    public async Task Faulted_Fetch_Is_Not_Cached_Retry_Reruns_Inner()
+    {
+        var inner = new CountingProvider { FailUntilCallCount = 2 };
+        var cache = new CachingBlockHeaderProvider(inner);
+
+        // First call fails; the cache must NOT remember the failure.
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => cache.GetHeaderAsync(500UL));
+
+        // Second call: same height, inner succeeds this time.
+        BlockHeader ok = await cache.GetHeaderAsync(500UL);
+        Assert.Equal(500UL, ok.Height);
+        Assert.Equal(2, inner.CallCount);
+
+        // Third call: now cached, no further inner hit.
+        await cache.GetHeaderAsync(500UL);
+        Assert.Equal(2, inner.CallCount);
+    }
+
+    [Fact]
+    public async Task Fifty_Parallel_Callers_Same_Height_Triggers_Exactly_One_Inner_Fetch()
+    {
+        var inner = new CountingProvider(delay: TimeSpan.FromMilliseconds(20));
+        var cache = new CachingBlockHeaderProvider(inner);
+
+        Task<BlockHeader>[] tasks = new Task<BlockHeader>[50];
+        for (int i = 0; i < tasks.Length; i++)
+        {
+            tasks[i] = cache.GetHeaderAsync(800_000UL);
+        }
+
+        BlockHeader[] results = await Task.WhenAll(tasks);
+        Assert.Equal(1, inner.CallCount);
+        Assert.All(results, r => Assert.Equal(800_000UL, r.Height));
+    }
+
     private sealed class CountingProvider : BlockHeaderProvider
     {
         private readonly TimeSpan _delay;
         public int CallCount;
+        public int FailUntilCallCount;
 
         public CountingProvider(TimeSpan delay = default)
         {
@@ -74,10 +136,15 @@ public sealed class CachingBlockHeaderProviderTests
         public override async Task<BlockHeader> GetHeaderAsync(
             ulong height, CancellationToken cancellationToken = default)
         {
-            Interlocked.Increment(ref CallCount);
+            int n = Interlocked.Increment(ref CallCount);
             if (_delay > TimeSpan.Zero)
             {
                 await Task.Delay(_delay, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (n < FailUntilCallCount)
+            {
+                throw new InvalidOperationException($"injected failure on call {n}");
             }
 
             byte[] merkle = new byte[32];
