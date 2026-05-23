@@ -1,0 +1,25 @@
+# Default: let git normalize text files to LF in the repository and on every
+# checkout, regardless of `core.autocrlf` on the developer's machine.
+* text=auto eol=lf
+
+# Source and configuration files: always LF, treat as text.
+*.cs        text eol=lf
+*.csproj    text eol=lf
+*.sln       text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.md        text eol=lf
+*.editorconfig text eol=lf
+*.gitignore    text eol=lf
+*.gitattributes text eol=lf
+
+# Test fixtures must be preserved byte-identically across platforms — they
+# are protocol data committed under specific SHA-256 digests. Any line-ending
+# conversion (LF -> CRLF on Windows under core.autocrlf=true) would change
+# the digest and break parity with the upstream reference clients.
+tests/OpenTimestamps.Tests/fixtures/**       binary
+tests/OpenTimestamps.Tests/fixtures/**/*.ots binary
+tests/OpenTimestamps.Tests/fixtures/**/*.txt binary
