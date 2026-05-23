@@ -6,7 +6,35 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
-Nothing yet.
+### Added
+
+- Multi-chain verification scaffolding:
+  - `OpenTimestamps.Verification.ChainId` enum (`Bitcoin`, `Litecoin`, `Ethereum`).
+  - `OpenTimestamps.Verification.LitecoinBlockHeaderProvider` (abstract).
+  - `OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider` —
+    concrete provider against an Esplora-compatible Litecoin explorer
+    (defaults to `https://litecoinspace.org/api/`). Trust category:
+    `Explorer`.
+  - `OpenTimestamps.Verification.EthereumBlockHeaderProvider` (abstract;
+    concrete impl ships in MC.2).
+  - `OpenTimestamps.Verification.VerifyOptions` — bundles optional
+    per-chain providers.
+  - `VerificationService.VerifyMultiChainAsync` /
+    `VerifyFileMultiChainAsync` — sibling methods taking
+    `VerifyOptions`. Bitcoin-only callers should keep using the
+    existing `VerifyAsync` / `VerifyFileAsync`.
+  - `VerificationResult.LitecoinAttestations`, `.EthereumAttestations` —
+    per-chain attestation lists.
+  - `VerifiedAttestation.Chain` init-only property distinguishing which
+    chain a successfully verified attestation anchors to.
+
+### Changed
+
+- Litecoin attestations encountered during verification with no
+  Litecoin provider supplied no longer surface as a warning. They
+  appear in `VerificationResult.LitecoinAttestations` and contribute
+  to `Anchored` status when no chain has been verified yet. (Same
+  applies to Ethereum attestations.)
 
 ## 1.0.0 — first stable release
 

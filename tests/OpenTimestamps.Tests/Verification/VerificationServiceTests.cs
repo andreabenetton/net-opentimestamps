@@ -87,8 +87,13 @@ public sealed class VerificationServiceTests
     }
 
     [Fact]
-    public async Task Litecoin_Attestation_Surfaces_As_Warning()
+    public async Task Litecoin_Attestation_Surfaces_In_Dedicated_List()
     {
+        // Behaviour change from pre-MC.1: Litecoin attestations are now
+        // first-class. With no Litecoin provider supplied they still appear
+        // in result.LitecoinAttestations (counted, but not verified) and
+        // contribute to the Anchored status — they no longer pollute
+        // Warnings with a "skipping" message.
         byte[] fileBytes = "hello"u8.ToArray();
         byte[] fileDigest = new OpSha256().Call(fileBytes);
         var ts = new Timestamp(fileDigest);
@@ -98,7 +103,12 @@ public sealed class VerificationServiceTests
         var svc = new VerificationService();
         VerificationResult result = await svc.VerifyAsync(dtf, fileBytes, provider: null);
 
-        Assert.Contains(result.Warnings, w => w.Contains("litecoin", StringComparison.OrdinalIgnoreCase));
+        Assert.Single(result.LitecoinAttestations);
+        Assert.Equal(123UL, result.LitecoinAttestations[0].Height);
+        Assert.Equal(TimestampStatus.Anchored, result.Status);
+        Assert.DoesNotContain(
+            result.Warnings,
+            w => w.Contains("Skipping non-Bitcoin", StringComparison.Ordinal));
     }
 
     [Fact]
