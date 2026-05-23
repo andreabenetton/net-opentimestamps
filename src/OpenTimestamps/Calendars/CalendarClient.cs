@@ -140,20 +140,30 @@ public sealed class CalendarClient
         }
 
         string? body = null;
+        Exception? readError = null;
         try
         {
             body = await response.Content
                 .ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (Exception)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            body = null;
+            // Body read failed *after* the non-success status was observed.
+            // Surface the failure via the inner exception so it isn't lost; the
+            // primary CalendarException still carries the HTTP status, which is
+            // the most actionable detail for the caller.
+            readError = ex;
         }
 
+        string bodyOrReason = body ?? (readError is null
+            ? "(no body)"
+            : $"(unreadable: {readError.GetType().Name})");
+
         throw new CalendarException(
-            $"Calendar returned {(int)response.StatusCode} {response.ReasonPhrase}: {body ?? "(no body)"}",
-            (int)response.StatusCode);
+            $"Calendar returned {(int)response.StatusCode} {response.ReasonPhrase}: {bodyOrReason}",
+            (int)response.StatusCode,
+            readError);
     }
 
     private static async Task<byte[]> ReadBoundedBodyAsync(

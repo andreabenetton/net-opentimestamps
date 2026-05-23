@@ -20,6 +20,12 @@ public sealed class CalendarException : Exception
     {
     }
 
+    public CalendarException(string message, int httpStatus, Exception? innerException)
+        : base(message, innerException)
+    {
+        HttpStatus = httpStatus;
+    }
+
     /// <summary>HTTP status code from the calendar response, if applicable.</summary>
     public int? HttpStatus { get; }
 }
