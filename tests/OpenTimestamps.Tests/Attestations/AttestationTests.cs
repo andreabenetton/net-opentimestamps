@@ -79,6 +79,30 @@ public sealed class AttestationTests
     }
 
     [Fact]
+    public void LitecoinBlockHeaderAttestation_RoundTrip_Preserves_Height()
+    {
+        var att = new LitecoinBlockHeaderAttestation(2_500_000);
+        using var ms = new MemoryStream();
+        att.Serialize(new OtsWriter(ms));
+        ms.Position = 0;
+        TimeAttestation parsed = TimeAttestation.Deserialize(new OtsReader(ms));
+        var l = Assert.IsType<LitecoinBlockHeaderAttestation>(parsed);
+        Assert.Equal(2_500_000UL, l.Height);
+    }
+
+    [Fact]
+    public void EthereumBlockHeaderAttestation_RoundTrip_Preserves_Height()
+    {
+        var att = new EthereumBlockHeaderAttestation(18_000_000);
+        using var ms = new MemoryStream();
+        att.Serialize(new OtsWriter(ms));
+        ms.Position = 0;
+        TimeAttestation parsed = TimeAttestation.Deserialize(new OtsReader(ms));
+        var e = Assert.IsType<EthereumBlockHeaderAttestation>(parsed);
+        Assert.Equal(18_000_000UL, e.Height);
+    }
+
+    [Fact]
     public void Attestation_Hash_Set_Dedupes_Equal_Pending_Atts()
     {
         var set = new HashSet<TimeAttestation>
