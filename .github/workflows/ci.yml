@@ -151,16 +151,19 @@ jobs:
             exit 1
           fi
           echo "Coverage report: $report"
+
           # Dump the top-level <coverage ...> tag so log readers can see
           # CI's actual numbers without needing to download the artifact.
-          head -c 600 "$report" | tr '>' '>\n' | head -3
+          # Use grep instead of head|tr|head to avoid SIGPIPE-with-pipefail.
+          echo "--- top-level coverage tag ---"
+          grep -o '<coverage[^>]*>' "$report" | head -n 1 || true
           echo
-          echo "All cobertura files found (should be one):"
-          find tests/OpenTimestamps.Tests/TestResults -name 'coverage.cobertura.xml'
+          echo "--- all cobertura files found ---"
+          find tests/OpenTimestamps.Tests/TestResults -name 'coverage.cobertura.xml' || true
 
           # Top-level <coverage line-rate="..." branch-rate="..."> is the project total.
-          line_rate=$(grep -oE 'line-rate="[0-9.]+"' "$report" | head -n1 | sed -E 's/^line-rate="([0-9.]+)"$/\1/')
-          branch_rate=$(grep -oE 'branch-rate="[0-9.]+"' "$report" | head -n1 | sed -E 's/^branch-rate="([0-9.]+)"$/\1/')
+          line_rate=$(grep -o 'line-rate="[0-9.]*"' "$report" | head -n 1 | sed -E 's/^line-rate="([0-9.]+)"$/\1/')
+          branch_rate=$(grep -o 'branch-rate="[0-9.]*"' "$report" | head -n 1 | sed -E 's/^branch-rate="([0-9.]+)"$/\1/')
 
           echo "line-rate=$line_rate (min ${MIN_LINE_RATE})"
           echo "branch-rate=$branch_rate (min ${MIN_BRANCH_RATE})"
