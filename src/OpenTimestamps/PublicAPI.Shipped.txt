@@ -1,0 +1,322 @@
+#nullable enable
+OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation
+OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation.BitcoinBlockHeaderAttestation(ulong height) -> void
+OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation.Height.get -> ulong
+OpenTimestamps.Attestations.EthereumBlockHeaderAttestation
+OpenTimestamps.Attestations.EthereumBlockHeaderAttestation.EthereumBlockHeaderAttestation(ulong height) -> void
+OpenTimestamps.Attestations.EthereumBlockHeaderAttestation.Height.get -> ulong
+OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation
+OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation.Height.get -> ulong
+OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation.LitecoinBlockHeaderAttestation(ulong height) -> void
+OpenTimestamps.Attestations.PendingAttestation
+OpenTimestamps.Attestations.PendingAttestation.PendingAttestation(string! uri) -> void
+OpenTimestamps.Attestations.PendingAttestation.Uri.get -> string!
+OpenTimestamps.Attestations.TimeAttestation
+OpenTimestamps.Attestations.TimeAttestation.CompareTo(OpenTimestamps.Attestations.TimeAttestation? other) -> int
+OpenTimestamps.Attestations.TimeAttestation.Equals(OpenTimestamps.Attestations.TimeAttestation? other) -> bool
+OpenTimestamps.Attestations.TimeAttestation.Serialize(OpenTimestamps.Serialization.OtsWriter! writer) -> void
+OpenTimestamps.Attestations.TimeAttestation.SerializePayloadToArray() -> byte[]!
+OpenTimestamps.Attestations.TimeAttestation.TimeAttestation() -> void
+OpenTimestamps.Attestations.UnknownAttestation
+OpenTimestamps.Attestations.UnknownAttestation.Payload.get -> System.ReadOnlySpan<byte>
+OpenTimestamps.Attestations.UnknownAttestation.PayloadArray() -> byte[]!
+OpenTimestamps.Attestations.UnknownAttestation.UnknownAttestation(byte[]! tag, byte[]! payload) -> void
+OpenTimestamps.Calendars.CalendarClient
+OpenTimestamps.Calendars.CalendarClient.BaseUri.get -> System.Uri!
+OpenTimestamps.Calendars.CalendarClient.CalendarClient(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, string? userAgent = null) -> void
+OpenTimestamps.Calendars.CalendarClient.GetTimestampAsync(byte[]! commitment, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Timestamp?>!
+OpenTimestamps.Calendars.CalendarClient.SubmitDigestAsync(byte[]! digest, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Timestamp!>!
+OpenTimestamps.Calendars.CalendarException
+OpenTimestamps.Calendars.CalendarException.CalendarException(string! message) -> void
+OpenTimestamps.Calendars.CalendarException.CalendarException(string! message, System.Exception! innerException) -> void
+OpenTimestamps.Calendars.CalendarException.CalendarException(string! message, int httpStatus) -> void
+OpenTimestamps.Calendars.CalendarException.CalendarException(string! message, int httpStatus, System.Exception? innerException) -> void
+OpenTimestamps.Calendars.CalendarException.HttpStatus.get -> int?
+OpenTimestamps.Calendars.CalendarWhitelist
+OpenTimestamps.Calendars.CalendarWhitelist.CalendarWhitelist(System.Collections.Generic.IEnumerable<string!>! patterns) -> void
+OpenTimestamps.Calendars.CalendarWhitelist.IsAllowed(string! uri) -> bool
+OpenTimestamps.Calendars.DefaultCalendars
+OpenTimestamps.DetachedTimestampFile
+OpenTimestamps.DetachedTimestampFile.DetachedTimestampFile(OpenTimestamps.Ops.CryptOp! fileHashOp, OpenTimestamps.Timestamp! timestamp) -> void
+OpenTimestamps.DetachedTimestampFile.FileDigest.get -> System.ReadOnlySpan<byte>
+OpenTimestamps.DetachedTimestampFile.FileHashOp.get -> OpenTimestamps.Ops.CryptOp!
+OpenTimestamps.DetachedTimestampFile.Serialize(OpenTimestamps.Serialization.OtsWriter! writer) -> void
+OpenTimestamps.DetachedTimestampFile.Serialize(System.IO.Stream! stream) -> void
+OpenTimestamps.DetachedTimestampFile.SerializeToArray() -> byte[]!
+OpenTimestamps.DetachedTimestampFile.SerializeToFile(string! path) -> void
+OpenTimestamps.DetachedTimestampFile.Timestamp.get -> OpenTimestamps.Timestamp!
+OpenTimestamps.Ops.BinaryOp
+OpenTimestamps.Ops.BinaryOp.Argument.get -> System.ReadOnlySpan<byte>
+OpenTimestamps.Ops.BinaryOp.ArgumentArray() -> byte[]!
+OpenTimestamps.Ops.BinaryOp.BinaryOp(byte[]! argument) -> void
+OpenTimestamps.Ops.CryptOp
+OpenTimestamps.Ops.CryptOp.CryptOp() -> void
+OpenTimestamps.Ops.CryptOp.HashFile(string! path) -> byte[]!
+OpenTimestamps.Ops.CryptOp.HashStream(System.IO.Stream! stream) -> byte[]!
+OpenTimestamps.Ops.Op
+OpenTimestamps.Ops.Op.Call(byte[]! message) -> byte[]!
+OpenTimestamps.Ops.Op.CompareTo(OpenTimestamps.Ops.Op? other) -> int
+OpenTimestamps.Ops.Op.Equals(OpenTimestamps.Ops.Op? other) -> bool
+OpenTimestamps.Ops.Op.Op() -> void
+OpenTimestamps.Ops.OpAppend
+OpenTimestamps.Ops.OpAppend.OpAppend(byte[]! argument) -> void
+OpenTimestamps.Ops.OpHexlify
+OpenTimestamps.Ops.OpHexlify.OpHexlify() -> void
+OpenTimestamps.Ops.OpKeccak256
+OpenTimestamps.Ops.OpKeccak256.OpKeccak256() -> void
+OpenTimestamps.Ops.OpPrepend
+OpenTimestamps.Ops.OpPrepend.OpPrepend(byte[]! argument) -> void
+OpenTimestamps.Ops.OpReverse
+OpenTimestamps.Ops.OpReverse.OpReverse() -> void
+OpenTimestamps.Ops.OpRipemd160
+OpenTimestamps.Ops.OpRipemd160.OpRipemd160() -> void
+OpenTimestamps.Ops.OpSha1
+OpenTimestamps.Ops.OpSha1.OpSha1() -> void
+OpenTimestamps.Ops.OpSha256
+OpenTimestamps.Ops.OpSha256.OpSha256() -> void
+OpenTimestamps.Ops.UnaryOp
+OpenTimestamps.Ops.UnaryOp.UnaryOp() -> void
+OpenTimestamps.Serialization.DeserializationException
+OpenTimestamps.Serialization.DeserializationException.DeserializationException() -> void
+OpenTimestamps.Serialization.DeserializationException.DeserializationException(string! message) -> void
+OpenTimestamps.Serialization.DeserializationException.DeserializationException(string! message, System.Exception! innerException) -> void
+OpenTimestamps.Serialization.OpMessageException
+OpenTimestamps.Serialization.OpMessageException.OpMessageException(string! message) -> void
+OpenTimestamps.Serialization.OtsReader
+OpenTimestamps.Serialization.OtsReader.AssertEof() -> void
+OpenTimestamps.Serialization.OtsReader.AssertMagic(System.ReadOnlySpan<byte> expected) -> void
+OpenTimestamps.Serialization.OtsReader.OtsReader(System.IO.Stream! stream) -> void
+OpenTimestamps.Serialization.OtsReader.ReadBool() -> bool
+OpenTimestamps.Serialization.OtsReader.ReadBytes(int length) -> byte[]!
+OpenTimestamps.Serialization.OtsReader.ReadUInt8() -> byte
+OpenTimestamps.Serialization.OtsReader.ReadVarBytes(int maxLength = 1048576, int minLength = 0) -> byte[]!
+OpenTimestamps.Serialization.OtsReader.ReadVarUInt() -> ulong
+OpenTimestamps.Serialization.OtsWriter
+OpenTimestamps.Serialization.OtsWriter.OtsWriter(System.IO.Stream! stream) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteBool(bool value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteBytes(System.ReadOnlySpan<byte> value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteBytes(byte[]! value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteUInt8(byte value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteVarBytes(System.ReadOnlySpan<byte> value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteVarBytes(byte[]! value) -> void
+OpenTimestamps.Serialization.OtsWriter.WriteVarUInt(ulong value) -> void
+OpenTimestamps.Serialization.RecursionLimitException
+OpenTimestamps.Serialization.RecursionLimitException.RecursionLimitException() -> void
+OpenTimestamps.Serialization.RecursionLimitException.RecursionLimitException(string! message) -> void
+OpenTimestamps.Serialization.UnsupportedMajorVersionException
+OpenTimestamps.Serialization.UnsupportedMajorVersionException.ObservedVersion.get -> byte
+OpenTimestamps.Serialization.UnsupportedMajorVersionException.UnsupportedMajorVersionException(byte observedVersion) -> void
+OpenTimestamps.Serialization.VarUIntOverflowException
+OpenTimestamps.Serialization.VarUIntOverflowException.VarUIntOverflowException() -> void
+OpenTimestamps.Stamping.StampService
+OpenTimestamps.Stamping.StampService.StampBytesAsync(byte[]! data, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
+OpenTimestamps.Stamping.StampService.StampDigestAsync(byte[]! digest, OpenTimestamps.Ops.CryptOp! fileHashOp, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
+OpenTimestamps.Stamping.StampService.StampFileAsync(string! filePath, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
+OpenTimestamps.Stamping.StampService.StampService(System.Func<byte[]!>? nonceProvider = null) -> void
+OpenTimestamps.Stamping.UpgradeResult
+OpenTimestamps.Stamping.UpgradeResult.ChangedAnything.get -> bool
+OpenTimestamps.Stamping.UpgradeResult.Errors.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenTimestamps.Stamping.UpgradeResult.Resolved.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenTimestamps.Stamping.UpgradeResult.Skipped.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenTimestamps.Stamping.UpgradeResult.StillPending.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenTimestamps.Stamping.UpgradeResult.UpgradeResult(System.Collections.Generic.IReadOnlyList<string!>! resolved, System.Collections.Generic.IReadOnlyList<string!>! stillPending, System.Collections.Generic.IReadOnlyList<string!>! skipped, System.Collections.Generic.IReadOnlyList<string!>! errors) -> void
+OpenTimestamps.Stamping.UpgradeService
+OpenTimestamps.Stamping.UpgradeService.UpgradeAsync(OpenTimestamps.DetachedTimestampFile! dtf, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Stamping.UpgradeResult!>!
+OpenTimestamps.Stamping.UpgradeService.UpgradeService(OpenTimestamps.Calendars.CalendarWhitelist! whitelist, System.Func<System.Uri!, OpenTimestamps.Calendars.CalendarClient!>! clientFactory) -> void
+OpenTimestamps.Timestamp
+OpenTimestamps.Timestamp.AllAttestations() -> System.Collections.Generic.IEnumerable<(byte[]! Msg, OpenTimestamps.Attestations.TimeAttestation! Attestation)>!
+OpenTimestamps.Timestamp.AllNodes() -> System.Collections.Generic.IEnumerable<OpenTimestamps.Timestamp!>!
+OpenTimestamps.Timestamp.Attestations.get -> System.Collections.Generic.HashSet<OpenTimestamps.Attestations.TimeAttestation!>!
+OpenTimestamps.Timestamp.IsEmpty.get -> bool
+OpenTimestamps.Timestamp.Merge(OpenTimestamps.Timestamp! other) -> void
+OpenTimestamps.Timestamp.Msg.get -> System.ReadOnlySpan<byte>
+OpenTimestamps.Timestamp.MsgArray() -> byte[]!
+OpenTimestamps.Timestamp.Ops.get -> System.Collections.Generic.Dictionary<OpenTimestamps.Ops.Op!, OpenTimestamps.Timestamp!>!
+OpenTimestamps.Timestamp.Serialize(OpenTimestamps.Serialization.OtsWriter! writer) -> void
+OpenTimestamps.Timestamp.Timestamp(byte[]! msg) -> void
+OpenTimestamps.TimestampMergeException
+OpenTimestamps.TimestampMergeException.TimestampMergeException(string! message) -> void
+OpenTimestamps.TimestampMergeException.TimestampMergeException(string! message, System.Exception! innerException) -> void
+OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider
+OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.BitcoinCoreRpcBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! rpcEndpoint, string? username = null, string? password = null) -> void
+OpenTimestamps.Verification.BlockHeader
+OpenTimestamps.Verification.BlockHeader.<Clone>$() -> OpenTimestamps.Verification.BlockHeader!
+OpenTimestamps.Verification.BlockHeader.BlockHeader(ulong Height, byte[]! MerkleRoot, System.DateTimeOffset Time) -> void
+OpenTimestamps.Verification.BlockHeader.Deconstruct(out ulong Height, out byte[]! MerkleRoot, out System.DateTimeOffset Time) -> void
+OpenTimestamps.Verification.BlockHeader.Equals(OpenTimestamps.Verification.BlockHeader? other) -> bool
+OpenTimestamps.Verification.BlockHeader.Height.get -> ulong
+OpenTimestamps.Verification.BlockHeader.Height.init -> void
+OpenTimestamps.Verification.BlockHeader.MerkleRoot.get -> byte[]!
+OpenTimestamps.Verification.BlockHeader.MerkleRoot.init -> void
+OpenTimestamps.Verification.BlockHeader.Time.get -> System.DateTimeOffset
+OpenTimestamps.Verification.BlockHeader.Time.init -> void
+OpenTimestamps.Verification.BlockHeader.Validate() -> OpenTimestamps.Verification.BlockHeader!
+OpenTimestamps.Verification.BlockHeaderProvider
+OpenTimestamps.Verification.BlockHeaderProvider.BlockHeaderProvider() -> void
+OpenTimestamps.Verification.CachingBlockHeaderProvider
+OpenTimestamps.Verification.CachingBlockHeaderProvider.CachedCount.get -> int
+OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192) -> void
+OpenTimestamps.Verification.EsploraBlockHeaderProvider
+OpenTimestamps.Verification.EsploraBlockHeaderProvider.EsploraBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri) -> void
+OpenTimestamps.Verification.FileDigestMismatchException
+OpenTimestamps.Verification.FileDigestMismatchException.ActualDigest.get -> byte[]!
+OpenTimestamps.Verification.FileDigestMismatchException.ExpectedDigest.get -> byte[]!
+OpenTimestamps.Verification.FileDigestMismatchException.FileDigestMismatchException(byte[]! expectedDigest, byte[]! actualDigest) -> void
+OpenTimestamps.Verification.TimestampStatus
+OpenTimestamps.Verification.TimestampStatus.Anchored = 1 -> OpenTimestamps.Verification.TimestampStatus
+OpenTimestamps.Verification.TimestampStatus.Incomplete = 0 -> OpenTimestamps.Verification.TimestampStatus
+OpenTimestamps.Verification.TimestampStatus.Verified = 2 -> OpenTimestamps.Verification.TimestampStatus
+OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.TrustCategory.Explorer = 2 -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.TrustCategory.LocalNode = 0 -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.TrustCategory.TrustedHeaders = 1 -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider
+OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.TrustedHeadersBlockHeaderProvider(System.Collections.Generic.IReadOnlyDictionary<ulong, OpenTimestamps.Verification.BlockHeader!>! headers, string! name = "trusted-headers") -> void
+OpenTimestamps.Verification.VerificationResult
+OpenTimestamps.Verification.VerificationResult.BitcoinAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation!>!
+OpenTimestamps.Verification.VerificationResult.EarliestVerifiedTime.get -> System.DateTimeOffset?
+OpenTimestamps.Verification.VerificationResult.PendingAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.PendingAttestation!>!
+OpenTimestamps.Verification.VerificationResult.Status.get -> OpenTimestamps.Verification.TimestampStatus
+OpenTimestamps.Verification.VerificationResult.UnknownAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.UnknownAttestation!>!
+OpenTimestamps.Verification.VerificationResult.VerificationResult(OpenTimestamps.Verification.TimestampStatus status, System.Collections.Generic.IReadOnlyList<OpenTimestamps.Verification.VerifiedAttestation!>! verifiedAttestations, System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation!>! bitcoinAttestations, System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.PendingAttestation!>! pendingAttestations, System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.UnknownAttestation!>! unknownAttestations, System.Collections.Generic.IReadOnlyList<string!>! warnings) -> void
+OpenTimestamps.Verification.VerificationResult.VerifiedAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Verification.VerifiedAttestation!>!
+OpenTimestamps.Verification.VerificationResult.Warnings.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenTimestamps.Verification.VerificationService
+OpenTimestamps.Verification.VerificationService.VerificationService() -> void
+OpenTimestamps.Verification.VerificationService.VerifyAsync(OpenTimestamps.DetachedTimestampFile! dtf, byte[]! fileBytes, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
+OpenTimestamps.Verification.VerificationService.VerifyFileAsync(OpenTimestamps.DetachedTimestampFile! dtf, string! filePath, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
+OpenTimestamps.Verification.VerifiedAttestation
+OpenTimestamps.Verification.VerifiedAttestation.<Clone>$() -> OpenTimestamps.Verification.VerifiedAttestation!
+OpenTimestamps.Verification.VerifiedAttestation.BlockTime.get -> System.DateTimeOffset
+OpenTimestamps.Verification.VerifiedAttestation.BlockTime.init -> void
+OpenTimestamps.Verification.VerifiedAttestation.Deconstruct(out ulong Height, out System.DateTimeOffset BlockTime, out string! ProviderName, out OpenTimestamps.Verification.TrustCategory TrustCategory) -> void
+OpenTimestamps.Verification.VerifiedAttestation.Equals(OpenTimestamps.Verification.VerifiedAttestation? other) -> bool
+OpenTimestamps.Verification.VerifiedAttestation.Height.get -> ulong
+OpenTimestamps.Verification.VerifiedAttestation.Height.init -> void
+OpenTimestamps.Verification.VerifiedAttestation.ProviderName.get -> string!
+OpenTimestamps.Verification.VerifiedAttestation.ProviderName.init -> void
+OpenTimestamps.Verification.VerifiedAttestation.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Verification.VerifiedAttestation.TrustCategory.init -> void
+OpenTimestamps.Verification.VerifiedAttestation.VerifiedAttestation(ulong Height, System.DateTimeOffset BlockTime, string! ProviderName, OpenTimestamps.Verification.TrustCategory TrustCategory) -> void
+abstract OpenTimestamps.Attestations.TimeAttestation.SerializePayload(OpenTimestamps.Serialization.OtsWriter! writer) -> void
+abstract OpenTimestamps.Attestations.TimeAttestation.Tag.get -> System.ReadOnlySpan<byte>
+abstract OpenTimestamps.Ops.CryptOp.DigestLength.get -> int
+abstract OpenTimestamps.Ops.CryptOp.HashStreamCore(System.IO.Stream! stream) -> byte[]!
+abstract OpenTimestamps.Ops.Op.DoCall(byte[]! message) -> byte[]!
+abstract OpenTimestamps.Ops.Op.Name.get -> string!
+abstract OpenTimestamps.Ops.Op.Tag.get -> byte
+abstract OpenTimestamps.Verification.BlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+abstract OpenTimestamps.Verification.BlockHeaderProvider.Name.get -> string!
+abstract OpenTimestamps.Verification.BlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+const OpenTimestamps.Attestations.PendingAttestation.MaxUriLength = 1000 -> int
+const OpenTimestamps.Attestations.TimeAttestation.MaxPayloadSize = 8192 -> int
+const OpenTimestamps.Attestations.TimeAttestation.TagSize = 8 -> int
+const OpenTimestamps.Calendars.CalendarClient.AcceptHeader = "application/vnd.opentimestamps.v1" -> string!
+const OpenTimestamps.Calendars.CalendarClient.MaxCommitmentSize = 64 -> int
+const OpenTimestamps.Calendars.CalendarClient.MaxResponseSize = 10000 -> int
+const OpenTimestamps.Calendars.DefaultCalendars.DefaultStampQuorum = 2 -> int
+const OpenTimestamps.DetachedTimestampFile.MajorVersion = 1 -> byte
+const OpenTimestamps.DetachedTimestampFile.MaxFileDigestLength = 32 -> int
+const OpenTimestamps.DetachedTimestampFile.MinFileDigestLength = 20 -> int
+const OpenTimestamps.Ops.Op.DefaultMaxMessageLength = 4096 -> int
+const OpenTimestamps.Ops.Op.MaxResultLength = 4096 -> int
+const OpenTimestamps.Serialization.OtsReader.DefaultMaxVarBytes = 1048576 -> int
+const OpenTimestamps.Stamping.StampService.NonceLength = 16 -> int
+const OpenTimestamps.Timestamp.DefaultRecursionLimit = 256 -> int
+override OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation.Tag.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation.ToString() -> string!
+override OpenTimestamps.Attestations.EthereumBlockHeaderAttestation.Tag.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Attestations.EthereumBlockHeaderAttestation.ToString() -> string!
+override OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation.Tag.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation.ToString() -> string!
+override OpenTimestamps.Attestations.PendingAttestation.Tag.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Attestations.PendingAttestation.ToString() -> string!
+override OpenTimestamps.Attestations.TimeAttestation.Equals(object? obj) -> bool
+override OpenTimestamps.Attestations.TimeAttestation.GetHashCode() -> int
+override OpenTimestamps.Attestations.UnknownAttestation.Tag.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Attestations.UnknownAttestation.ToString() -> string!
+override OpenTimestamps.Ops.BinaryOp.ArgumentBytes.get -> System.ReadOnlySpan<byte>
+override OpenTimestamps.Ops.BinaryOp.Serialize(OpenTimestamps.Serialization.OtsWriter! writer) -> void
+override OpenTimestamps.Ops.BinaryOp.ToString() -> string!
+override OpenTimestamps.Ops.Op.Equals(object? obj) -> bool
+override OpenTimestamps.Ops.Op.GetHashCode() -> int
+override OpenTimestamps.Ops.Op.ToString() -> string!
+override OpenTimestamps.Ops.OpAppend.Name.get -> string!
+override OpenTimestamps.Ops.OpAppend.Tag.get -> byte
+override OpenTimestamps.Ops.OpHexlify.MaxMessageLength.get -> int
+override OpenTimestamps.Ops.OpHexlify.Name.get -> string!
+override OpenTimestamps.Ops.OpHexlify.Tag.get -> byte
+override OpenTimestamps.Ops.OpKeccak256.DigestLength.get -> int
+override OpenTimestamps.Ops.OpKeccak256.Name.get -> string!
+override OpenTimestamps.Ops.OpKeccak256.Tag.get -> byte
+override OpenTimestamps.Ops.OpPrepend.Name.get -> string!
+override OpenTimestamps.Ops.OpPrepend.Tag.get -> byte
+override OpenTimestamps.Ops.OpReverse.Name.get -> string!
+override OpenTimestamps.Ops.OpReverse.Tag.get -> byte
+override OpenTimestamps.Ops.OpRipemd160.DigestLength.get -> int
+override OpenTimestamps.Ops.OpRipemd160.Name.get -> string!
+override OpenTimestamps.Ops.OpRipemd160.Tag.get -> byte
+override OpenTimestamps.Ops.OpSha1.DigestLength.get -> int
+override OpenTimestamps.Ops.OpSha1.Name.get -> string!
+override OpenTimestamps.Ops.OpSha1.Tag.get -> byte
+override OpenTimestamps.Ops.OpSha256.DigestLength.get -> int
+override OpenTimestamps.Ops.OpSha256.Name.get -> string!
+override OpenTimestamps.Ops.OpSha256.Tag.get -> byte
+override OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.BitcoinCoreRpcBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.BlockHeader.Equals(object? obj) -> bool
+override OpenTimestamps.Verification.BlockHeader.GetHashCode() -> int
+override OpenTimestamps.Verification.BlockHeader.ToString() -> string!
+override OpenTimestamps.Verification.CachingBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.CachingBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.CachingBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.EsploraBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.EsploraBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.EsploraBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.VerifiedAttestation.Equals(object? obj) -> bool
+override OpenTimestamps.Verification.VerifiedAttestation.GetHashCode() -> int
+override OpenTimestamps.Verification.VerifiedAttestation.ToString() -> string!
+static OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation.AttestationTag.get -> System.ReadOnlySpan<byte>
+static OpenTimestamps.Attestations.EthereumBlockHeaderAttestation.AttestationTag.get -> System.ReadOnlySpan<byte>
+static OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation.AttestationTag.get -> System.ReadOnlySpan<byte>
+static OpenTimestamps.Attestations.PendingAttestation.AttestationTag.get -> System.ReadOnlySpan<byte>
+static OpenTimestamps.Attestations.TimeAttestation.Deserialize(OpenTimestamps.Serialization.OtsReader! reader) -> OpenTimestamps.Attestations.TimeAttestation!
+static OpenTimestamps.Calendars.CalendarWhitelist.Default.get -> OpenTimestamps.Calendars.CalendarWhitelist!
+static OpenTimestamps.Calendars.DefaultCalendars.Aggregators.get -> System.Collections.Generic.IReadOnlyList<string!>!
+static OpenTimestamps.DetachedTimestampFile.Deserialize(OpenTimestamps.Serialization.OtsReader! reader) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.Deserialize(System.IO.Stream! stream) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.DeserializeFromArray(byte[]! data) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.DeserializeFromFile(string! path) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.FromFile(OpenTimestamps.Ops.CryptOp! fileHashOp, string! path) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.FromFileBytes(OpenTimestamps.Ops.CryptOp! fileHashOp, byte[]! fileBytes) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.FromStream(OpenTimestamps.Ops.CryptOp! fileHashOp, System.IO.Stream! stream) -> OpenTimestamps.DetachedTimestampFile!
+static OpenTimestamps.DetachedTimestampFile.HeaderMagic.get -> System.ReadOnlySpan<byte>
+static OpenTimestamps.Ops.CryptOp.DeserializeCrypt(OpenTimestamps.Serialization.OtsReader! reader) -> OpenTimestamps.Ops.CryptOp!
+static OpenTimestamps.Ops.Op.Comparer.get -> System.Collections.Generic.IComparer<OpenTimestamps.Ops.Op!>!
+static OpenTimestamps.Ops.Op.Deserialize(OpenTimestamps.Serialization.OtsReader! reader) -> OpenTimestamps.Ops.Op!
+static OpenTimestamps.Ops.Op.DeserializeFromTag(OpenTimestamps.Serialization.OtsReader! reader, byte tag) -> OpenTimestamps.Ops.Op!
+static OpenTimestamps.Ops.Op.IsKnownTag(byte tag) -> bool
+static OpenTimestamps.Ops.Op.operator !=(OpenTimestamps.Ops.Op? left, OpenTimestamps.Ops.Op? right) -> bool
+static OpenTimestamps.Ops.Op.operator <(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
+static OpenTimestamps.Ops.Op.operator <=(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
+static OpenTimestamps.Ops.Op.operator ==(OpenTimestamps.Ops.Op? left, OpenTimestamps.Ops.Op? right) -> bool
+static OpenTimestamps.Ops.Op.operator >(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
+static OpenTimestamps.Ops.Op.operator >=(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
+static OpenTimestamps.Timestamp.Deserialize(OpenTimestamps.Serialization.OtsReader! reader, byte[]! initialMsg) -> OpenTimestamps.Timestamp!
+static OpenTimestamps.Verification.BlockHeader.operator !=(OpenTimestamps.Verification.BlockHeader? left, OpenTimestamps.Verification.BlockHeader? right) -> bool
+static OpenTimestamps.Verification.BlockHeader.operator ==(OpenTimestamps.Verification.BlockHeader? left, OpenTimestamps.Verification.BlockHeader? right) -> bool
+static OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.FromJson(string! json, string! name) -> OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider!
+static OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.FromJsonFile(string! path, string? name = null) -> OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider!
+static OpenTimestamps.Verification.VerifiedAttestation.operator !=(OpenTimestamps.Verification.VerifiedAttestation? left, OpenTimestamps.Verification.VerifiedAttestation? right) -> bool
+static OpenTimestamps.Verification.VerifiedAttestation.operator ==(OpenTimestamps.Verification.VerifiedAttestation? left, OpenTimestamps.Verification.VerifiedAttestation? right) -> bool
+static readonly OpenTimestamps.Calendars.CalendarWhitelist.DefaultPatterns -> System.Collections.Generic.IReadOnlyList<string!>!
+virtual OpenTimestamps.Attestations.TimeAttestation.ComparePayloads(OpenTimestamps.Attestations.TimeAttestation! other) -> int
+virtual OpenTimestamps.Attestations.TimeAttestation.ContributeToHash(ref System.HashCode hash) -> void
+virtual OpenTimestamps.Attestations.TimeAttestation.PayloadEquals(OpenTimestamps.Attestations.TimeAttestation! other) -> bool
+virtual OpenTimestamps.Ops.Op.ArgumentBytes.get -> System.ReadOnlySpan<byte>
+virtual OpenTimestamps.Ops.Op.MaxMessageLength.get -> int
+virtual OpenTimestamps.Ops.Op.Serialize(OpenTimestamps.Serialization.OtsWriter! writer) -> void
