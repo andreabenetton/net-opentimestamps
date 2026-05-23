@@ -8,6 +8,15 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ### Added
 
+- Multi-file batch stamping:
+  - `OpenTimestamps.Stamping.MerkleAggregator` (+ `MerkleAggregationResult`)
+    — builds a balanced SHA-256 merkle tree over N leaf commitments and
+    returns each leaf's `Timestamp` path to the shared root. Bitcoin-style
+    odd-leaf duplication.
+  - `StampService.StampManyAsync(IReadOnlyList<string> filePaths, ...)`
+    — stamp N files in a single calendar round-trip. Each output DTF
+    verifies independently; the calendar attestation propagates to
+    every file's proof via the shared merkle root.
 - Multi-chain verification scaffolding:
   - `OpenTimestamps.Verification.ChainId` enum (`Bitcoin`, `Litecoin`, `Ethereum`).
   - `OpenTimestamps.Verification.LitecoinBlockHeaderProvider` (abstract).

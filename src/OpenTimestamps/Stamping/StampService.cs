@@ -208,5 +208,180 @@ public sealed class StampService
         return new DetachedTimestampFile(fileHashOp, root);
     }
 
+    /// <summary>
+    /// Batch-stamp many files in a single calendar round-trip.
+    /// </summary>
+    /// <remarks>
+    /// Each input file is hashed (SHA-256), nonced with its own fresh
+    /// privacy nonce, then folded into a merkle tree whose root is submitted
+    /// to calendars. The returned DTFs each verify independently against the
+    /// same calendar-supplied attestation tree.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">Any argument is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePaths"/> is empty, or <paramref name="calendars"/> is empty.</exception>
+    /// <exception cref="AggregateException">Fewer than <paramref name="quorum"/> calendars accepted the stamp.</exception>
+    public async Task<IReadOnlyList<DetachedTimestampFile>> StampManyAsync(
+        IReadOnlyList<string> filePaths,
+        IEnumerable<CalendarClient> calendars,
+        int quorum = DefaultCalendars.DefaultStampQuorum,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(filePaths);
+        ArgumentNullException.ThrowIfNull(calendars);
+        if (filePaths.Count == 0)
+        {
+            throw new ArgumentException("At least one file path is required.", nameof(filePaths));
+        }
+
+        CalendarClient[] calendarList = [.. calendars];
+        if (calendarList.Length == 0)
+        {
+            throw new ArgumentException("At least one calendar is required to stamp.", nameof(calendars));
+        }
+
+        if (quorum < 1 || quorum > calendarList.Length)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(quorum),
+                quorum,
+                $"Quorum must be between 1 and {calendarList.Length}.");
+        }
+
+        // Per-file: digest -> nonce -> commitment. Track each step's
+        // Timestamp so we can later splice the merkle-aggregation path onto
+        // the commitment node.
+        var fileHashOps = new OpSha256[filePaths.Count];
+        var rootTimestamps = new Timestamp[filePaths.Count];
+        var commitTips = new Timestamp[filePaths.Count];
+        var commitments = new byte[filePaths.Count][];
+
+        for (int i = 0; i < filePaths.Count; i++)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(filePaths[i]);
+
+            var fileHashOp = new OpSha256();
+            byte[] digest = fileHashOp.HashFile(filePaths[i]);
+
+            byte[] nonce = _nonceProvider();
+            if (nonce.Length != NonceLength)
+            {
+                throw new InvalidOperationException(
+                    $"Nonce provider returned {nonce.Length} bytes; expected {NonceLength}.");
+            }
+
+            var nonceAppend = new OpAppend(nonce);
+            byte[] noncedMsg = nonceAppend.Call(digest);
+            var commitSha256 = new OpSha256();
+            byte[] commitment = commitSha256.Call(noncedMsg);
+
+            var rootTs = new Timestamp(digest);
+            var noncedTs = new Timestamp(noncedMsg);
+            rootTs.Ops[nonceAppend] = noncedTs;
+            var commitTs = new Timestamp(commitment);
+            noncedTs.Ops[commitSha256] = commitTs;
+
+            fileHashOps[i] = fileHashOp;
+            rootTimestamps[i] = rootTs;
+            commitTips[i] = commitTs;
+            commitments[i] = commitment;
+        }
+
+        // Single-file fast path: no merkle aggregation needed.
+        if (filePaths.Count == 1)
+        {
+            byte[] rootCommitment = commitments[0];
+            await SubmitToCalendarsAndMergeAsync(
+                rootCommitment, commitTips[0], calendarList, quorum, cancellationToken)
+                .ConfigureAwait(false);
+            return [new DetachedTimestampFile(fileHashOps[0], rootTimestamps[0])];
+        }
+
+        // Build a merkle tree over the per-file commitments. The aggregator
+        // returns a SHARED RootTimestamp reachable from every leaf's path.
+        MerkleAggregationResult merkle = MerkleAggregator.Aggregate(commitments);
+
+        // Submit the merkle root to calendars and merge their responses onto
+        // the SHARED RootTimestamp BEFORE we splice into per-file trees.
+        // The subsequent Merge calls then copy the attestation along into
+        // every file's tree.
+        await SubmitToCalendarsAndMergeAsync(
+            merkle.RootDigest, merkle.RootTimestamp, calendarList, quorum, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Splice the merkle-leaf trees onto each commit tip. Now that the
+        // calendar attestation lives on the shared root, each merge copies
+        // it down into the per-file tree.
+        for (int i = 0; i < filePaths.Count; i++)
+        {
+            commitTips[i].Merge(merkle.LeafTimestamps[i]);
+        }
+
+        var results = new DetachedTimestampFile[filePaths.Count];
+        for (int i = 0; i < filePaths.Count; i++)
+        {
+            results[i] = new DetachedTimestampFile(fileHashOps[i], rootTimestamps[i]);
+        }
+        return results;
+    }
+
+    private async Task SubmitToCalendarsAndMergeAsync(
+        byte[] commitment,
+        Timestamp mergeTarget,
+        CalendarClient[] calendarList,
+        int quorum,
+        CancellationToken cancellationToken)
+    {
+        Task<(CalendarClient Calendar, Timestamp? Response, Exception? Error)>[] tasks =
+            calendarList.Select(async cal =>
+            {
+                try
+                {
+                    Timestamp response = await cal
+                        .SubmitDigestAsync(commitment, cancellationToken)
+                        .ConfigureAwait(false);
+                    return (Calendar: cal, Response: (Timestamp?)response, Error: (Exception?)null);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    return (Calendar: cal, Response: (Timestamp?)null, Error: (Exception?)ex);
+                }
+            }).ToArray();
+
+        var responses = new List<Timestamp>();
+        var errors = new List<Exception>();
+        foreach (Task<(CalendarClient Calendar, Timestamp? Response, Exception? Error)> t in tasks)
+        {
+            var outcome = await t.ConfigureAwait(false);
+            if (outcome.Response is not null)
+            {
+                responses.Add(outcome.Response);
+            }
+            else if (outcome.Error is not null)
+            {
+                errors.Add(outcome.Error);
+            }
+        }
+
+        if (responses.Count < quorum)
+        {
+            _logger.LogError(
+                "Batch stamp quorum not met: {Accepted}/{Total} accepted, quorum {Quorum}; {Errors} errors",
+                responses.Count, calendarList.Length, quorum, errors.Count);
+            throw new AggregateException(
+                $"Only {responses.Count} of {calendarList.Length} calendars accepted the batch stamp; " +
+                $"quorum was {quorum}.",
+                errors);
+        }
+
+        foreach (Timestamp r in responses)
+        {
+            mergeTarget.Merge(r);
+        }
+
+        _logger.LogDebug(
+            "Batch stamp accepted by {Accepted}/{Total} calendars",
+            responses.Count, calendarList.Length);
+    }
+
     private static byte[] GenerateSecureNonce() => RandomNumberGenerator.GetBytes(NonceLength);
 }

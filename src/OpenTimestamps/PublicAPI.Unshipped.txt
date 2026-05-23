@@ -37,3 +37,10 @@ OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.JsonRpcEthereumBl
 override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
 override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.Name.get -> string!
 override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+OpenTimestamps.Stamping.MerkleAggregationResult
+OpenTimestamps.Stamping.MerkleAggregationResult.LeafTimestamps.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Timestamp!>!
+OpenTimestamps.Stamping.MerkleAggregationResult.RootDigest.get -> byte[]!
+OpenTimestamps.Stamping.MerkleAggregator
+OpenTimestamps.Stamping.StampService.StampManyAsync(System.Collections.Generic.IReadOnlyList<string!>! filePaths, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<OpenTimestamps.DetachedTimestampFile!>!>!
+static OpenTimestamps.Stamping.MerkleAggregator.Aggregate(System.Collections.Generic.IReadOnlyList<byte[]!>! leaves) -> OpenTimestamps.Stamping.MerkleAggregationResult!
+OpenTimestamps.Stamping.MerkleAggregationResult.RootTimestamp.get -> OpenTimestamps.Timestamp!
