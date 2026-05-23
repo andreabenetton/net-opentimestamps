@@ -80,6 +80,8 @@ OTS_SKIP_NETWORK=1 dotnet test              # skip network-gated integration tes
 - [`docs/protocol-notes.md`](docs/protocol-notes.md) — wire format, encoding, calendar HTTP API.
 - [`docs/verification-model.md`](docs/verification-model.md) — what "verified" means and the trust categories.
 - [`docs/cli-usage.md`](docs/cli-usage.md) — `ots` CLI reference.
+- [`docs/versioning.md`](docs/versioning.md) — SemVer policy and release flow.
+- [`samples/`](samples/) — runnable end-to-end programs (`StampVerifyDemo` etc.).
 - [`CLAUDE.md`](CLAUDE.md) — implementation guidance, non-negotiable rules, anti-patterns.
 
 ## Status

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>OpenTimestamps.Samples.StampVerifyDemo</RootNamespace>
+    <AssemblyName>StampVerifyDemo</AssemblyName>
+    <NoWarn>$(NoWarn);CA1303;CA2007;CA1031</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OpenTimestamps\OpenTimestamps.csproj" />
+  </ItemGroup>
+
+</Project>
