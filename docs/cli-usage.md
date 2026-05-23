@@ -93,6 +93,8 @@ root of the named block.
 | `--bitcoin-rpc URL`                    | (off)                   | Bitcoin: Bitcoin Core JSON-RPC endpoint. **Trust category: `LocalNode`** (trustless given the node). |
 | `--rpc-user U` / `--rpc-password P`    | (none)                  | Basic-auth credentials for the Bitcoin RPC endpoint.                                            |
 | `--litecoin-explorer URL`              | (off)                   | Litecoin: Esplora-compatible Litecoin explorer (e.g. `https://litecoinspace.org/api/`). **Trust category: `Explorer`**. |
+| `--ethereum-rpc URL`                   | (off)                   | Ethereum: JSON-RPC endpoint (e.g. `https://cloudflare-eth.com`). **Trust category: `Explorer`** — advisory only post-Merge; see `docs/verification-model.md`. |
+| `--eth-rpc-user U` / `--eth-rpc-password P` | (none)             | Basic-auth credentials for the Ethereum RPC endpoint. |
 
 A proof is `VERIFIED` if **any** chain attestation in it was successfully
 verified against the corresponding provider — Bitcoin, Litecoin, or

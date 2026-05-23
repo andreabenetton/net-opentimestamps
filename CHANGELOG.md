@@ -33,6 +33,14 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   - `VerifiedAttestation.Chain` init-only property distinguishing which
     chain a successfully verified attestation anchors to.
 
+- `ots verify` gains `--ethereum-rpc URL` (plus `--eth-rpc-user` and
+  `--eth-rpc-password` for Basic auth) wiring a
+  `JsonRpcEthereumBlockHeaderProvider`. Multi-chain `VERIFIED` is
+  reported when any one chain's attestation matches; per-chain
+  outcomes appear in the printed list.
+- `ots verify` gains `--litecoin-explorer URL` wiring a
+  `LitecoinSpaceBlockHeaderProvider`.
+
 ### Changed
 
 - Litecoin attestations encountered during verification with no

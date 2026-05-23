@@ -8,7 +8,8 @@ internal static class VerifyCommand
     public const string Usage =
         "usage: ots verify [--json] <file> [--proof <file.ots>]" +
         " [--explorer <url> | --bitcoin-rpc <url> [--rpc-user U --rpc-password P]]" +
-        " [--litecoin-explorer <url>]";
+        " [--litecoin-explorer <url>]" +
+        " [--ethereum-rpc <url> [--eth-rpc-user U --eth-rpc-password P]]";
 
     public static async Task<int> RunAsync(string[] args, HttpClient http, CancellationToken ct)
     {
@@ -19,6 +20,9 @@ internal static class VerifyCommand
             .Option("--rpc-user")
             .Option("--rpc-password")
             .Option("--litecoin-explorer")
+            .Option("--ethereum-rpc")
+            .Option("--eth-rpc-user")
+            .Option("--eth-rpc-password")
             .Flag("--json");
         parser.Parse();
 
@@ -62,12 +66,13 @@ internal static class VerifyCommand
         }
 
         LitecoinBlockHeaderProvider? litecoin = BuildLitecoinProvider(parser, http);
+        EthereumBlockHeaderProvider? ethereum = BuildEthereumProvider(parser, http);
 
         var svc = new VerificationService();
         VerificationResult result;
         try
         {
-            if (litecoin is not null)
+            if (litecoin is not null || ethereum is not null)
             {
                 result = await svc.VerifyFileMultiChainAsync(
                     dtf,
@@ -76,6 +81,7 @@ internal static class VerifyCommand
                     {
                         BitcoinProvider = provider,
                         LitecoinProvider = litecoin,
+                        EthereumProvider = ethereum,
                     },
                     ct).ConfigureAwait(false);
             }
@@ -151,6 +157,22 @@ internal static class VerifyCommand
             http, new Uri(explorer, UriKind.Absolute));
     }
 
+    private static EthereumBlockHeaderProvider? BuildEthereumProvider(
+        ArgParser parser, HttpClient http)
+    {
+        string? rpc = parser.GetOption("--ethereum-rpc");
+        if (rpc is null)
+        {
+            return null;
+        }
+
+        return new JsonRpcEthereumBlockHeaderProvider(
+            http,
+            new Uri(rpc, UriKind.Absolute),
+            parser.GetOption("--eth-rpc-user"),
+            parser.GetOption("--eth-rpc-password"));
+    }
+
     private static int PrintAndExit(VerificationResult result, BlockHeaderProvider? provider, string filePath)
     {
         switch (result.Status)
@@ -169,7 +191,7 @@ internal static class VerifyCommand
                 Console.Out.WriteLine(
                     $"ANCHORED: {filePath} contains chain attestations but no block-header source " +
                     "for the relevant chain was configured. Re-run with --explorer, --bitcoin-rpc, " +
-                    "or --litecoin-explorer to verify against headers.");
+                    "--litecoin-explorer, or --ethereum-rpc to verify against headers.");
                 foreach (var b in result.BitcoinAttestations)
                 {
                     Console.Out.WriteLine($"  bitcoin block {b.Height}");
