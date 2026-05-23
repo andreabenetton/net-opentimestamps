@@ -20,6 +20,11 @@ public sealed class VerificationService
     /// merkle root match is not checked.
     /// </param>
     /// <param name="cancellationToken">Cancellation.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dtf"/> or <paramref name="fileBytes"/> is null.</exception>
+    /// <exception cref="FileDigestMismatchException">
+    /// The hash of <paramref name="fileBytes"/> under <c>dtf.FileHashOp</c> does
+    /// not equal <c>dtf.FileDigest</c>; the proof is not for this file.
+    /// </exception>
     public async Task<VerificationResult> VerifyAsync(
         DetachedTimestampFile dtf,
         byte[] fileBytes,
@@ -43,6 +48,13 @@ public sealed class VerificationService
     /// Verify <paramref name="dtf"/> against the candidate file on disk at
     /// <paramref name="filePath"/>, hashing the file in a streaming fashion.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="dtf"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null or empty.</exception>
+    /// <exception cref="IOException">Reading <paramref name="filePath"/> failed.</exception>
+    /// <exception cref="FileDigestMismatchException">
+    /// The hash of the file at <paramref name="filePath"/> does not match
+    /// <c>dtf.FileDigest</c>; the proof is not for this file.
+    /// </exception>
     public async Task<VerificationResult> VerifyFileAsync(
         DetachedTimestampFile dtf,
         string filePath,

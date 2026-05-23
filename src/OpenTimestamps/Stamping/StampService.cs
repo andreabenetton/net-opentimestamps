@@ -37,6 +37,9 @@ public sealed class StampService
     /// <summary>
     /// Stamp a file on disk using the supplied calendars. Hashes with SHA-256.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null or empty, or other argument validation fails (see <see cref="StampDigestAsync"/>).</exception>
+    /// <exception cref="IOException">Reading <paramref name="filePath"/> failed.</exception>
+    /// <exception cref="AggregateException">Fewer than <paramref name="quorum"/> calendars accepted the stamp; inner exceptions hold each calendar failure.</exception>
     public async Task<DetachedTimestampFile> StampFileAsync(
         string filePath,
         IEnumerable<CalendarClient> calendars,
@@ -53,6 +56,9 @@ public sealed class StampService
     /// <summary>
     /// Stamp an arbitrary byte buffer using the supplied calendars. Hashes with SHA-256.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+    /// <exception cref="ArgumentException">Argument validation fails (see <see cref="StampDigestAsync"/>).</exception>
+    /// <exception cref="AggregateException">Fewer than <paramref name="quorum"/> calendars accepted the stamp.</exception>
     public async Task<DetachedTimestampFile> StampBytesAsync(
         byte[] data,
         IEnumerable<CalendarClient> calendars,
@@ -70,6 +76,18 @@ public sealed class StampService
     /// Stamp a pre-computed digest. The chosen <paramref name="fileHashOp"/>
     /// must be the operation that produced <paramref name="digest"/>.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Any argument is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="digest"/>'s length doesn't match <paramref name="fileHashOp"/>'s
+    /// digest length, or <paramref name="calendars"/> is empty.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="quorum"/> is less than 1 or greater than the calendar count.
+    /// </exception>
+    /// <exception cref="AggregateException">
+    /// Fewer than <paramref name="quorum"/> calendars accepted the stamp; the
+    /// inner exceptions hold per-calendar failures (typically <see cref="CalendarException"/>).
+    /// </exception>
     public async Task<DetachedTimestampFile> StampDigestAsync(
         byte[] digest,
         CryptOp fileHashOp,

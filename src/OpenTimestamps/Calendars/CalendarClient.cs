@@ -53,6 +53,13 @@ public sealed class CalendarClient
     /// Submit a commitment digest to the calendar's <c>POST /digest</c> endpoint
     /// and return the resulting partial timestamp tree.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="digest"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="digest"/> length is 0 or exceeds <see cref="MaxCommitmentSize"/>.</exception>
+    /// <exception cref="CalendarException">
+    /// The calendar rejected the request, returned a non-success status, exceeded
+    /// the <see cref="MaxResponseSize"/> cap, or returned an unparseable body.
+    /// </exception>
+    /// <exception cref="HttpRequestException">An HTTP transport-level error occurred.</exception>
     public async Task<Timestamp> SubmitDigestAsync(
         byte[] digest, CancellationToken cancellationToken = default)
     {
@@ -86,6 +93,13 @@ public sealed class CalendarClient
     /// calendar's <c>GET /timestamp/{hex}</c> endpoint. Returns <c>null</c> on
     /// 404 (the calendar has the commitment pending but no Bitcoin attestation yet).
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="commitment"/> is null.</exception>
+    /// <exception cref="ArgumentException"><paramref name="commitment"/> is empty.</exception>
+    /// <exception cref="CalendarException">
+    /// The calendar returned a non-success non-404 status, exceeded the size cap,
+    /// or returned an unparseable body.
+    /// </exception>
+    /// <exception cref="HttpRequestException">An HTTP transport-level error occurred.</exception>
     public async Task<Timestamp?> GetTimestampAsync(
         byte[] commitment, CancellationToken cancellationToken = default)
     {

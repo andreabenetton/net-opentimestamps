@@ -21,7 +21,9 @@ public sealed class TimestampTreeTests
     {
         var a = new Timestamp(new byte[] { 1, 2, 3 });
         var b = new Timestamp(new byte[] { 4, 5, 6 });
-        Assert.Throws<InvalidOperationException>(() => a.Merge(b));
+        var ex = Assert.Throws<TimestampMergeException>(() => a.Merge(b));
+        // Still catchable as InvalidOperationException for backward-compatibility.
+        Assert.IsAssignableFrom<InvalidOperationException>(ex);
     }
 
     [Fact]

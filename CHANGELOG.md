@@ -6,7 +6,25 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
-Nothing yet.
+### Added
+
+- `OpenTimestamps.TimestampMergeException` — typed exception thrown by
+  `Timestamp.Merge` when the operand's `Msg` differs from the receiver's.
+  Inherits from `InvalidOperationException` so existing catch blocks still
+  match.
+- `CalendarException(string message, int httpStatus, Exception? innerException)`
+  constructor — chains the underlying cause when a non-success response body
+  fails to read.
+- `<exception>` XML doc tags on the most consumer-facing public methods of
+  `Timestamp`, `DetachedTimestampFile`, `StampService`, `CalendarClient`, and
+  `VerificationService` — exception contract is now part of the documentation.
+
+### Fixed
+
+- `CalendarClient` no longer silently swallows body-read failures on
+  non-success HTTP responses. The read failure is preserved on
+  `CalendarException.InnerException` and the message reports `(unreadable: <type>)`
+  instead of `(no body)`.
 
 ## 0.1.0 — initial release
 
