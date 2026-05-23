@@ -1,0 +1,22 @@
+# CODEOWNERS for net-opentimestamps
+#
+# Each line is a path pattern followed by one or more GitHub usernames or
+# team handles. The last matching line wins.
+#
+# TODO(maintainer): replace @andreabenetton with the team / additional
+# reviewers once others are onboarded.
+
+* @andreabenetton
+
+# Wire-format-critical code: parser, serializer, op registry. Changes here
+# carry interop risk; insist on careful review.
+/src/OpenTimestamps/Serialization/  @andreabenetton
+/src/OpenTimestamps/Ops/            @andreabenetton
+/src/OpenTimestamps/Attestations/   @andreabenetton
+
+# Trust model surfaces: anything that touches BlockHeaderProvider,
+# VerificationService, or the TrustCategory contract.
+/src/OpenTimestamps/Verification/   @andreabenetton
+
+# CI / release pipeline.
+/.github/                           @andreabenetton

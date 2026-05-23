@@ -1,0 +1,43 @@
+name: Feature request
+description: Propose a new feature or behaviour change.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: the library deliberately defers to the Python
+        opentimestamps reference for on-wire behaviour. If your feature
+        request is about how we parse / serialize / verify, please cite
+        the upstream behaviour we'd be matching.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this solve, and for whom?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: |
+        A rough sketch of what you'd like the API or CLI surface to look like.
+        Include any breaking-change concerns.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you've tried, or different shapes you ruled out.
+
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Upstream reference
+      description: |
+        If this matches behaviour from python / java / javascript reference
+        clients, link the source and commit SHA.
