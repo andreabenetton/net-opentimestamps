@@ -31,6 +31,7 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
     private readonly BlockHeaderProvider _inner;
     private readonly int _maxEntries;
     private readonly ILogger _logger;
+    private readonly IHeaderCacheStore? _store;
     private readonly object _lock = new();
     private readonly Dictionary<ulong, LinkedListNode<Entry>> _index = [];
     private readonly LinkedList<Entry> _lru = new();
@@ -41,10 +42,18 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
     /// Defaults to 8192 (≈800 days of Bitcoin blocks).
     /// </param>
     /// <param name="logger">Optional <see cref="ILogger"/> for cache-hit / cache-miss diagnostics; defaults to <see cref="NullLogger"/>.</param>
+    /// <param name="store">
+    /// Optional persistent backing store (e.g. <see cref="FileBackedHeaderCacheStore"/>).
+    /// When supplied, hits from the store populate the in-memory cache on first
+    /// access and successful inner-provider fetches write through to the store.
+    /// Trust category is inherited from <paramref name="inner"/>; the store does
+    /// not change trust semantics.
+    /// </param>
     public CachingBlockHeaderProvider(
         BlockHeaderProvider inner,
         int maxEntries = 8192,
-        ILogger? logger = null)
+        ILogger? logger = null,
+        IHeaderCacheStore? store = null)
     {
         ArgumentNullException.ThrowIfNull(inner);
         if (maxEntries < 1)
@@ -55,6 +64,7 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
         _inner = inner;
         _maxEntries = maxEntries;
         _logger = logger ?? NullLogger.Instance;
+        _store = store;
     }
 
     public override TrustCategory TrustCategory => _inner.TrustCategory;
@@ -89,10 +99,24 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
             }
             else
             {
-                // Start the fetch; share the Task so concurrent first-callers
-                // for the same height don't both hit the inner provider.
-                _logger.LogTrace("Cache miss for block height {Height}; forwarding to {Inner}", height, _inner.Name);
-                task = _inner.GetHeaderAsync(height, cancellationToken);
+                // Try the persistent store before going to the inner provider.
+                BlockHeader? persistedHit = _store?.TryGet(height);
+                if (persistedHit is not null)
+                {
+                    _logger.LogTrace("Store hit for block height {Height}", height);
+                    task = Task.FromResult(persistedHit);
+                }
+                else
+                {
+                    // Start the fetch; share the Task so concurrent first-callers
+                    // for the same height don't both hit the inner provider.
+                    _logger.LogTrace("Cache miss for block height {Height}; forwarding to {Inner}", height, _inner.Name);
+                    Task<BlockHeader> innerTask = _inner.GetHeaderAsync(height, cancellationToken);
+                    task = _store is null
+                        ? innerTask
+                        : WriteThroughAsync(innerTask, _store);
+                }
+
                 var entry = new Entry(height, task);
                 LinkedListNode<Entry> node = _lru.AddFirst(entry);
                 _index[height] = node;
@@ -131,6 +155,14 @@ public sealed class CachingBlockHeaderProvider : BlockHeaderProvider
                 _index.Remove(height);
             }
         }
+    }
+
+    private static async Task<BlockHeader> WriteThroughAsync(
+        Task<BlockHeader> innerTask, IHeaderCacheStore store)
+    {
+        BlockHeader header = await innerTask.ConfigureAwait(false);
+        store.Put(header);
+        return header;
     }
 
     private readonly record struct Entry(ulong Height, Task<BlockHeader> Task);
