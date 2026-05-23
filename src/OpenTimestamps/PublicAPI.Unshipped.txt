@@ -1,10 +1,1 @@
 #nullable enable
-OpenTimestamps.Verification.FileBackedHeaderCacheStore
-OpenTimestamps.Verification.FileBackedHeaderCacheStore.Count.get -> int
-OpenTimestamps.Verification.FileBackedHeaderCacheStore.Dispose() -> void
-OpenTimestamps.Verification.FileBackedHeaderCacheStore.FileBackedHeaderCacheStore(string! path) -> void
-OpenTimestamps.Verification.FileBackedHeaderCacheStore.Put(OpenTimestamps.Verification.BlockHeader! header) -> void
-OpenTimestamps.Verification.FileBackedHeaderCacheStore.TryGet(ulong height) -> OpenTimestamps.Verification.BlockHeader?
-OpenTimestamps.Verification.IHeaderCacheStore
-OpenTimestamps.Verification.IHeaderCacheStore.Put(OpenTimestamps.Verification.BlockHeader! header) -> void
-OpenTimestamps.Verification.IHeaderCacheStore.TryGet(ulong height) -> OpenTimestamps.Verification.BlockHeader?

@@ -6,6 +6,37 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
+Nothing yet.
+
+## 1.0.0 — first stable release
+
+The first release with the API surface frozen under
+`Microsoft.CodeAnalysis.PublicApiAnalyzers`. Every public symbol present
+at this version is captured in `src/OpenTimestamps/PublicAPI.Shipped.txt`;
+post-1.0 changes will surface as deliberate diffs in `PublicAPI.Unshipped.txt`.
+
+### Production-grade infrastructure landed since 0.1.0
+
+- Property-style parser fuzz harness (`tests/.../Fuzz/`) — any unhandled
+  exception escaping the parser fails the test.
+- Cross-implementation interop tests against the Python reference CLI
+  (gated by `OTS_PYTHON_REF=1`).
+- Fixture corpus expanded from 6 (Python-only) to 14 across Python, Java,
+  and JavaScript references, exercised via directory enumeration.
+- `Microsoft.Extensions.Logging.Abstractions`-based `ILogger` plumbing on
+  every consumer-facing service.
+- Persistent file-backed block-header cache
+  (`FileBackedHeaderCacheStore`) — trust category inherits from inner
+  provider.
+- BenchmarkDotNet baseline (parse / serialize / walk).
+- GitHub Actions CI: cross-platform matrix, coverage threshold gate,
+  CodeQL static analysis, Dependabot for `nuget` + `github-actions`,
+  signed release pipeline (NuGet push + GitHub release + CycloneDX SBOM).
+- `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, CODEOWNERS,
+  issue templates, PR template.
+- `samples/StampVerifyDemo` — runnable end-to-end demo.
+- `docs/versioning.md`, `docs/releasing.md` — SemVer policy + release flow.
+
 ### Added
 
 - `OpenTimestamps.TimestampMergeException` — typed exception thrown by

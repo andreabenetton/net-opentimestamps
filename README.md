@@ -86,10 +86,14 @@ OTS_SKIP_NETWORK=1 dotnet test              # skip network-gated integration tes
 
 ## Status
 
-Pre-1.0 (`0.1.0`). The wire-format implementation is exercised against the
-upstream fixtures and verified end-to-end against the live Bitcoin network
-via Esplora. The public API may evolve before 1.0; treat every signature
-change as breaking.
+`1.0.0`. Public API is frozen under
+[`PublicApiAnalyzers`](https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/PublicApiAnalyzers.Help.md):
+post-1.0 changes show up as deliberate diffs in
+`src/OpenTimestamps/PublicAPI.Unshipped.txt`. SemVer 2.0 policy is documented
+in [`docs/versioning.md`](docs/versioning.md). The wire format is exercised
+against 14 fixtures from the Python, Java, and JavaScript reference clients,
+verified end-to-end against the live Bitcoin network via Esplora, and
+cross-checked against the Python CLI when `OTS_PYTHON_REF=1` is set.
 
 Not implemented yet:
 

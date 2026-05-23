@@ -14,7 +14,7 @@
       pre-release builds: dotnet pack ... -p:VersionSuffix=alpha.1
       Assembly/FileVersion never include the suffix; PackageVersion does.
     -->
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
