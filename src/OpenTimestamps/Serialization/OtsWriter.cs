@@ -4,8 +4,17 @@ namespace OpenTimestamps.Serialization;
 /// Writes the OpenTimestamps wire format to a <see cref="Stream"/>.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Mirrors the serialization helpers in <c>opentimestamps/core/serialize.py</c>.
 /// Not thread-safe. The writer does not own the underlying stream.
+/// </para>
+/// <para>
+/// <strong>Advanced.</strong> Most consumers should not need this type directly —
+/// <see cref="DetachedTimestampFile.Serialize(Stream)"/> and the
+/// <c>SerializeTo*</c> helpers handle the file framing. <see cref="OtsWriter"/>
+/// is exposed for callers extending the library with custom attestation
+/// payloads or experimenting with non-default framing.
+/// </para>
 /// </remarks>
 public sealed class OtsWriter
 {

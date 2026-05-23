@@ -6,8 +6,17 @@ namespace OpenTimestamps.Serialization;
 /// Reads the OpenTimestamps wire format from a <see cref="Stream"/>.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Mirrors the deserialization helpers in <c>opentimestamps/core/serialize.py</c>.
 /// Not thread-safe. The reader does not own the underlying stream.
+/// </para>
+/// <para>
+/// <strong>Advanced.</strong> Most consumers should not need this type directly —
+/// <see cref="DetachedTimestampFile.Deserialize(Stream)"/> and the
+/// <c>DeserializeFrom*</c> helpers handle the file framing. <see cref="OtsReader"/>
+/// is exposed for callers parsing custom attestation payloads or experimenting
+/// with non-default framing.
+/// </para>
 /// </remarks>
 public sealed class OtsReader
 {
