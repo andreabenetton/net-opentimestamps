@@ -20,6 +20,18 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
+    <!-- Improves repro on CI vs local builds; safe with deterministic. -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      SourceLink: stack traces from consumers of our NuGet packages link
+      back to the exact source on GitHub. The package metadata above
+      (PublishRepositoryUrl, EmbedUntrackedSources) is already SourceLink-
+      ready; this reference activates the GitHub provider.
+    -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+  </ItemGroup>
 
 </Project>
