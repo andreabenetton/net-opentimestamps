@@ -48,12 +48,17 @@ public sealed class Timestamp
     /// Merge <paramref name="other"/> into this timestamp. Requires the two have
     /// the same <see cref="Msg"/>. Unions attestations and recursively merges ops.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is null.</exception>
+    /// <exception cref="TimestampMergeException">
+    /// <paramref name="other"/>'s <see cref="Msg"/> differs from the receiver's;
+    /// timestamps for different commitments cannot be merged.
+    /// </exception>
     public void Merge(Timestamp other)
     {
         ArgumentNullException.ThrowIfNull(other);
         if (!_msg.AsSpan().SequenceEqual(other._msg))
         {
-            throw new InvalidOperationException(
+            throw new TimestampMergeException(
                 "Cannot merge timestamps for different messages together.");
         }
 
@@ -75,6 +80,11 @@ public sealed class Timestamp
     }
 
     /// <summary>Write this Timestamp subtree to the OTS wire format.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// This timestamp has neither attestations nor ops; the wire format requires
+    /// every leaf to terminate in an attestation.
+    /// </exception>
     public void Serialize(OtsWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
@@ -125,6 +135,14 @@ public sealed class Timestamp
     }
 
     /// <summary>Read a Timestamp subtree from the wire, given the initial message at this node.</summary>
+    /// <exception cref="ArgumentNullException">Either argument is null.</exception>
+    /// <exception cref="DeserializationException">
+    /// The wire bytes are malformed (invalid tag, truncated body, op produced an
+    /// invalid intermediate message, etc.).
+    /// </exception>
+    /// <exception cref="RecursionLimitException">
+    /// The tree depth exceeds <see cref="DefaultRecursionLimit"/>.
+    /// </exception>
     public static Timestamp Deserialize(OtsReader reader, byte[] initialMsg)
     {
         ArgumentNullException.ThrowIfNull(reader);

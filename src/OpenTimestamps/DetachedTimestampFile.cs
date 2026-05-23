@@ -26,6 +26,11 @@ public sealed class DetachedTimestampFile
     /// <summary>Maximum permitted file digest length (256-bit).</summary>
     public const int MaxFileDigestLength = 32;
 
+    /// <summary>Construct a detached timestamp from an explicit hash op and timestamp tree.</summary>
+    /// <exception cref="ArgumentNullException">Either argument is null.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="timestamp"/>.Msg length doesn't match <paramref name="fileHashOp"/>.DigestLength.
+    /// </exception>
     public DetachedTimestampFile(CryptOp fileHashOp, Timestamp timestamp)
     {
         ArgumentNullException.ThrowIfNull(fileHashOp);
@@ -128,6 +133,14 @@ public sealed class DetachedTimestampFile
     }
 
     /// <summary>Read a complete .ots file via the supplied reader.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="reader"/> is null.</exception>
+    /// <exception cref="DeserializationException">
+    /// The file is malformed — bad magic, truncated body, invalid op tag,
+    /// unknown file-hash op, or trailing bytes after the tree.
+    /// </exception>
+    /// <exception cref="UnsupportedMajorVersionException">
+    /// The file's major version byte is not <see cref="MajorVersion"/>.
+    /// </exception>
     public static DetachedTimestampFile Deserialize(OtsReader reader)
     {
         ArgumentNullException.ThrowIfNull(reader);
