@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace OpenTimestamps.Calendars;
 
@@ -31,8 +33,13 @@ public sealed class CalendarClient
     private readonly HttpClient _httpClient;
     private readonly Uri _baseUri;
     private readonly string _userAgent;
+    private readonly ILogger _logger;
 
-    public CalendarClient(HttpClient httpClient, Uri baseUri, string? userAgent = null)
+    public CalendarClient(
+        HttpClient httpClient,
+        Uri baseUri,
+        string? userAgent = null,
+        ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(baseUri);
@@ -44,6 +51,7 @@ public sealed class CalendarClient
         _httpClient = httpClient;
         _baseUri = NormalizeBase(baseUri);
         _userAgent = userAgent ?? DefaultUserAgent;
+        _logger = logger ?? NullLogger.Instance;
     }
 
     /// <summary>The base URL of this calendar.</summary>
@@ -72,6 +80,7 @@ public sealed class CalendarClient
         }
 
         var endpoint = new Uri(_baseUri, "digest");
+        _logger.LogTrace("POST {Endpoint} ({DigestLength} bytes)", endpoint, digest.Length);
         using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
         request.Headers.UserAgent.ParseAdd(_userAgent);
@@ -111,6 +120,7 @@ public sealed class CalendarClient
 
         string hex = Convert.ToHexString(commitment).ToLower(CultureInfo.InvariantCulture);
         var endpoint = new Uri(_baseUri, $"timestamp/{hex}");
+        _logger.LogTrace("GET {Endpoint}", endpoint);
         using var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(AcceptHeader));
         request.Headers.UserAgent.ParseAdd(_userAgent);

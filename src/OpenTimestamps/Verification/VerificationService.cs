@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenTimestamps.Attestations;
 
 namespace OpenTimestamps.Verification;
@@ -8,6 +10,13 @@ namespace OpenTimestamps.Verification;
 /// </summary>
 public sealed class VerificationService
 {
+    private readonly ILogger _logger;
+
+    public VerificationService(ILogger? logger = null)
+    {
+        _logger = logger ?? NullLogger.Instance;
+    }
+
     /// <summary>
     /// Verify <paramref name="dtf"/> against the candidate <paramref name="fileBytes"/>.
     /// </summary>
@@ -74,7 +83,7 @@ public sealed class VerificationService
         return await VerifyParsedAsync(dtf, provider, cancellationToken).ConfigureAwait(false);
     }
 
-    private static async Task<VerificationResult> VerifyParsedAsync(
+    private async Task<VerificationResult> VerifyParsedAsync(
         DetachedTimestampFile dtf,
         BlockHeaderProvider? provider,
         CancellationToken cancellationToken)
@@ -127,9 +136,16 @@ public sealed class VerificationService
                             header.Time,
                             provider.Name,
                             provider.TrustCategory));
+                        _logger.LogInformation(
+                            "Verified Bitcoin attestation at block {Height} via {Provider} ({Trust})",
+                            bitcoin.Height, provider.Name, provider.TrustCategory);
                     }
                     catch (Exception ex) when (ex is not OperationCanceledException)
                     {
+                        _logger.LogWarning(
+                            ex,
+                            "Bitcoin attestation verification failed at block {Height} via {Provider}",
+                            bitcoin.Height, provider.Name);
                         warnings.Add(
                             $"Failed to verify Bitcoin attestation at block {bitcoin.Height} " +
                             $"via {provider.Name}: {ex.Message}");

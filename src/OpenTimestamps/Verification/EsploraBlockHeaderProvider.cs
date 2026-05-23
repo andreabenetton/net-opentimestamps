@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace OpenTimestamps.Verification;
 
@@ -16,8 +18,9 @@ public sealed class EsploraBlockHeaderProvider : BlockHeaderProvider
 {
     private readonly HttpClient _http;
     private readonly Uri _baseUri;
+    private readonly ILogger _logger;
 
-    public EsploraBlockHeaderProvider(HttpClient httpClient, Uri baseUri)
+    public EsploraBlockHeaderProvider(HttpClient httpClient, Uri baseUri, ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(baseUri);
@@ -28,6 +31,7 @@ public sealed class EsploraBlockHeaderProvider : BlockHeaderProvider
 
         _http = httpClient;
         _baseUri = NormalizeBase(baseUri);
+        _logger = logger ?? NullLogger.Instance;
     }
 
     public override TrustCategory TrustCategory => TrustCategory.Explorer;
@@ -39,6 +43,7 @@ public sealed class EsploraBlockHeaderProvider : BlockHeaderProvider
     {
         // Esplora API: GET /block-height/{height} → block hash (text)
         //              GET /block/{hash}          → JSON with merkle_root + timestamp
+        _logger.LogTrace("Fetching block at height {Height} from {Host}", height, _baseUri.Host);
         string hash = await GetBlockHashAtHeightAsync(height, cancellationToken).ConfigureAwait(false);
         return await GetBlockAsync(height, hash, cancellationToken).ConfigureAwait(false);
     }

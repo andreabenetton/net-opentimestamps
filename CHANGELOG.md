@@ -38,6 +38,13 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   are no longer cached — the next caller retries the inner provider, which
   matters for transient network failures. Default `maxEntries` raised from
   4096 to 8192 (≈800 days of Bitcoin blocks).
+- Library now references `Microsoft.Extensions.Logging.Abstractions`.
+  `CalendarClient`, `StampService`, `UpgradeService`, `VerificationService`,
+  `CachingBlockHeaderProvider`, `EsploraBlockHeaderProvider`, and
+  `BitcoinCoreRpcBlockHeaderProvider` each gain a final optional
+  `ILogger? logger = null` constructor parameter. Defaults to
+  `NullLogger.Instance`. Source- and binary-compatible for any call site
+  using positional args ≤ the previous parameter count.
 
 ## 0.1.0 — initial release
 
