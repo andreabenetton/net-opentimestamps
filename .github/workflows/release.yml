@@ -159,7 +159,7 @@ jobs:
           global-json-file: global.json
 
       - name: Download nupkgs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nupkgs
           path: artifacts/
@@ -192,13 +192,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download nupkgs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nupkgs
           path: artifacts/
 
       - name: Download SBOM
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sbom
           path: artifacts/
