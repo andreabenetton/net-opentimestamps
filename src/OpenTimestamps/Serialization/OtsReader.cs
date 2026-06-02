@@ -92,6 +92,17 @@ public sealed class OtsReader
         while (true)
         {
             byte b = ReadUInt8();
+
+            // On the 10th byte (shift==63) only bit 0 of (b & 0x7F) fits in a
+            // ulong. Without this guard, a malformed input where (b & 0x7F) > 1
+            // would silently drop the high bits via the << shift's wrap and
+            // produce a "valid" value where the encoder cannot have produced
+            // these bytes from any ulong input.
+            if (shift == 63 && (b & 0x7Fu) > 1u)
+            {
+                throw new VarUIntOverflowException();
+            }
+
             value |= (ulong)(b & 0x7Fu) << shift;
             if ((b & 0x80) == 0)
             {

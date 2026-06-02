@@ -39,6 +39,40 @@ public sealed class HardeningTests
     }
 
     [Fact]
+    public void VarUInt_Tenth_Byte_With_High_Bit_Set_Throws_VarUIntOverflow()
+    {
+        // 9 continuation bytes (0x80) followed by a final byte whose low-7-bit
+        // payload is > 1 encodes a value that does not fit in a ulong (bit 64+).
+        // Reader must reject rather than silently shift-wrap to a different
+        // valid ulong value. Concretely, 0x80 × 9 + 0x02 mathematically encodes
+        // 2 << 63 = 2^64; without the guard, the reader returned 2^63.
+        byte[] payload =
+        [
+            0x80, 0x80, 0x80, 0x80, 0x80,
+            0x80, 0x80, 0x80, 0x80, 0x02,
+        ];
+        using var ms = new MemoryStream(payload);
+        var reader = new OtsReader(ms);
+        Assert.Throws<VarUIntOverflowException>(() => reader.ReadVarUInt());
+    }
+
+    [Fact]
+    public void VarUInt_UInt64_MaxValue_RoundTrips()
+    {
+        // Boundary case: 0x80 × 9 + 0x01 is the canonical encoding of
+        // ulong.MaxValue. It must round-trip cleanly — the new bit-1-only
+        // guard for the 10th byte must not over-reject.
+        byte[] payload =
+        [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0x01,
+        ];
+        using var ms = new MemoryStream(payload);
+        var reader = new OtsReader(ms);
+        Assert.Equal(ulong.MaxValue, reader.ReadVarUInt());
+    }
+
+    [Fact]
     public void VarBytes_Length_Exceeding_Cap_Throws_DeserializationException()
     {
         // Declare a 2 MiB body when DefaultMaxVarBytes is 1 MiB.
