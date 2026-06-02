@@ -52,11 +52,19 @@ public sealed class LitecoinSpaceBlockHeaderProvider : LitecoinBlockHeaderProvid
         ulong height, CancellationToken cancellationToken)
     {
         var uri = new Uri(_baseUri, $"block-height/{height.ToString(CultureInfo.InvariantCulture)}");
-        string body = await _http.GetStringAsync(uri, cancellationToken).ConfigureAwait(false);
+        using HttpResponseMessage response = await _http
+            .GetAsync(uri, cancellationToken)
+            .ConfigureAwait(false);
+        BoundedHttpResponseReader.EnsureSuccessOrThrow(response, "Litecoin explorer block-hash query");
+
+        string body = await BoundedHttpResponseReader
+            .ReadStringBoundedAsync(response.Content, BoundedHttpResponseReader.TextCap, cancellationToken)
+            .ConfigureAwait(false);
+
         string hash = body.Trim();
         if (hash.Length != 64 || !IsHex(hash))
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Litecoin explorer returned non-hex block hash for height {height}: '{hash}'.");
         }
 
@@ -67,30 +75,34 @@ public sealed class LitecoinSpaceBlockHeaderProvider : LitecoinBlockHeaderProvid
         ulong height, string hash, CancellationToken cancellationToken)
     {
         var uri = new Uri(_baseUri, $"block/{hash}");
-        using Stream s = await _http.GetStreamAsync(uri, cancellationToken).ConfigureAwait(false);
-        using JsonDocument doc = await JsonDocument
-            .ParseAsync(s, default, cancellationToken)
+        using HttpResponseMessage response = await _http
+            .GetAsync(uri, cancellationToken)
+            .ConfigureAwait(false);
+        BoundedHttpResponseReader.EnsureSuccessOrThrow(response, "Litecoin explorer block query");
+
+        using JsonDocument doc = await BoundedHttpResponseReader
+            .ParseBoundedJsonAsync(response.Content, BoundedHttpResponseReader.JsonCap, cancellationToken)
             .ConfigureAwait(false);
 
         JsonElement root = doc.RootElement;
         if (!root.TryGetProperty("merkle_root", out JsonElement merkleEl)
             || merkleEl.ValueKind != JsonValueKind.String)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 "Litecoin explorer block JSON missing 'merkle_root' string field.");
         }
 
         if (!root.TryGetProperty("timestamp", out JsonElement tsEl)
             || tsEl.ValueKind != JsonValueKind.Number)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 "Litecoin explorer block JSON missing 'timestamp' number field.");
         }
 
         string merkleHex = merkleEl.GetString()!;
         if (merkleHex.Length != 64 || !IsHex(merkleHex))
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Litecoin explorer returned malformed merkle_root: '{merkleHex}'.");
         }
 

@@ -59,7 +59,7 @@ public sealed class LitecoinSpaceProviderTests
         using var http = new HttpClient(handler);
         var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("non-hex", ex.Message, StringComparison.Ordinal);
     }
@@ -80,7 +80,7 @@ public sealed class LitecoinSpaceProviderTests
         using var http = new HttpClient(handler);
         var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("merkle_root", ex.Message, StringComparison.Ordinal);
     }
@@ -101,7 +101,7 @@ public sealed class LitecoinSpaceProviderTests
         using var http = new HttpClient(handler);
         var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("timestamp", ex.Message, StringComparison.Ordinal);
     }
@@ -122,7 +122,7 @@ public sealed class LitecoinSpaceProviderTests
         using var http = new HttpClient(handler);
         var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("malformed merkle_root", ex.Message, StringComparison.Ordinal);
     }
@@ -133,6 +133,50 @@ public sealed class LitecoinSpaceProviderTests
         using var http = new HttpClient();
         Assert.Throws<ArgumentException>(
             () => new LitecoinSpaceBlockHeaderProvider(http, new Uri("relative", UriKind.Relative)));
+    }
+
+    [Fact]
+    public async Task Http_Non_2xx_Throws_BlockHeaderProviderException_With_Status()
+    {
+        var handler = new RouterHandler(_ => new HttpResponseMessage(HttpStatusCode.BadGateway)
+        {
+            Content = new StringContent("upstream", Encoding.UTF8, "text/plain"),
+        });
+
+        using var http = new HttpClient(handler);
+        var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
+
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
+            () => provider.GetHeaderAsync(1UL));
+        Assert.Equal(502, ex.HttpStatus);
+    }
+
+    [Fact]
+    public async Task Oversize_Json_Body_Throws_BlockHeaderProviderException()
+    {
+        // Force the second hop (block-by-hash JSON) past the 32 KB cap.
+        string fakeHash = new('a', 64);
+        string oversizeJson = "{\"merkle_root\":\""
+            + new string('0', 64)
+            + "\",\"timestamp\":1700000000,\"_pad\":\""
+            + new string('x', 33 * 1024)
+            + "\"}";
+        var handler = new RouterHandler(req =>
+        {
+            string path = req.RequestUri!.AbsolutePath;
+            if (path.Contains("/block-height/", StringComparison.Ordinal))
+            {
+                return TextOk(fakeHash);
+            }
+            return JsonOk(oversizeJson);
+        });
+
+        using var http = new HttpClient(handler);
+        var provider = new LitecoinSpaceBlockHeaderProvider(http, BaseUri);
+
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
+            () => provider.GetHeaderAsync(1UL));
+        Assert.Contains("cap", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     private static HttpResponseMessage TextOk(string body) =>

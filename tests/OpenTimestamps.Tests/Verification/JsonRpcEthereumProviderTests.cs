@@ -81,7 +81,7 @@ public sealed class JsonRpcEthereumProviderTests
         using var http = new HttpClient(handler);
         var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(99_999_999UL));
         Assert.Contains("block not found", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -94,7 +94,7 @@ public sealed class JsonRpcEthereumProviderTests
         using var http = new HttpClient(handler);
         var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("no block", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -109,7 +109,7 @@ public sealed class JsonRpcEthereumProviderTests
         using var http = new HttpClient(handler);
         var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("transactionsRoot", ex.Message, StringComparison.Ordinal);
     }
@@ -123,7 +123,7 @@ public sealed class JsonRpcEthereumProviderTests
         using var http = new HttpClient(handler);
         var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("timestamp", ex.Message, StringComparison.Ordinal);
     }
@@ -138,7 +138,7 @@ public sealed class JsonRpcEthereumProviderTests
         using var http = new HttpClient(handler);
         var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1UL));
         Assert.Contains("unexpected length", ex.Message, StringComparison.Ordinal);
     }
@@ -168,6 +168,43 @@ public sealed class JsonRpcEthereumProviderTests
         await Task.CompletedTask;
         Assert.Throws<ArgumentException>(
             () => new JsonRpcEthereumBlockHeaderProvider(http, new Uri("relative", UriKind.Relative)));
+    }
+
+    [Fact]
+    public async Task Http_Non_2xx_Throws_BlockHeaderProviderException_With_Status()
+    {
+        var handler = new RpcHandler(_ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+        {
+            Content = new StringContent("upstream busy", Encoding.UTF8, "text/plain"),
+        });
+
+        using var http = new HttpClient(handler);
+        var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
+
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
+            () => provider.GetHeaderAsync(1UL));
+        Assert.Equal(503, ex.HttpStatus);
+    }
+
+    [Fact]
+    public async Task Oversize_Response_Body_Throws_BlockHeaderProviderException()
+    {
+        // 33 KB padding past the 32 KB JsonCap. Wrapped as JSON to force the
+        // provider through ParseBoundedJsonAsync, which enforces the cap.
+        string padded = "{\"result\":{\"transactionsRoot\":\"0x"
+            + new string('0', 64)
+            + "\",\"timestamp\":\"0x1\",\"_pad\":\""
+            + new string('a', 33 * 1024)
+            + "\"}}";
+
+        var handler = new RpcHandler(_ => Ok(padded));
+
+        using var http = new HttpClient(handler);
+        var provider = new JsonRpcEthereumBlockHeaderProvider(http, RpcEndpoint);
+
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
+            () => provider.GetHeaderAsync(1UL));
+        Assert.Contains("cap", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     private static HttpResponseMessage Ok(string body) =>

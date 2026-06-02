@@ -64,7 +64,7 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
         if (!root.TryGetProperty("merkleroot", out JsonElement merkleEl)
             || !root.TryGetProperty("time", out JsonElement timeEl))
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 "Bitcoin Core RPC getblockheader response missing merkleroot/time fields.");
         }
 
@@ -85,7 +85,8 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
         using JsonDocument doc = await CallJsonAsync(method, parameters, cancellationToken)
             .ConfigureAwait(false);
         return doc.RootElement.GetString()
-            ?? throw new InvalidOperationException($"Bitcoin Core RPC {method} returned a non-string result.");
+            ?? throw new BlockHeaderProviderException(
+                $"Bitcoin Core RPC {method} returned a non-string result.");
     }
 
     private async Task<JsonDocument> CallJsonAsync(
@@ -113,15 +114,10 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
         using HttpResponseMessage response = await _http
             .SendAsync(request, cancellationToken)
             .ConfigureAwait(false);
+        BoundedHttpResponseReader.EnsureSuccessOrThrow(response, $"Bitcoin Core RPC {method}");
 
-        response.EnsureSuccessStatusCode();
-
-        await using Stream s = await response.Content
-            .ReadAsStreamAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        JsonDocument doc = await JsonDocument
-            .ParseAsync(s, default, cancellationToken)
+        using JsonDocument doc = await BoundedHttpResponseReader
+            .ParseBoundedJsonAsync(response.Content, BoundedHttpResponseReader.JsonCap, cancellationToken)
             .ConfigureAwait(false);
 
         JsonElement root = doc.RootElement;
@@ -130,21 +126,20 @@ public sealed class BitcoinCoreRpcBlockHeaderProvider : BlockHeaderProvider
             string message = err.TryGetProperty("message", out JsonElement msgEl)
                 ? msgEl.GetString() ?? err.GetRawText()
                 : err.GetRawText();
-            doc.Dispose();
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Bitcoin Core RPC {method} returned error: {message}");
         }
 
         if (!root.TryGetProperty("result", out JsonElement result))
         {
-            doc.Dispose();
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Bitcoin Core RPC {method} returned no 'result' field.");
         }
 
-        // Re-parse so the returned document is just the result subtree.
-        string raw = result.GetRawText();
-        doc.Dispose();
-        return JsonDocument.Parse(raw);
+        // Re-parse so the returned document is just the result subtree. The
+        // outer doc's bounded ParseBoundedJsonAsync already enforces the cap;
+        // this re-parse is over an in-memory string strictly smaller than that
+        // cap, so no second cap needed.
+        return JsonDocument.Parse(result.GetRawText());
     }
 }

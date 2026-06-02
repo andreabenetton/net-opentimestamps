@@ -57,6 +57,22 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   appear in `VerificationResult.LitecoinAttestations` and contribute
   to `Anchored` status when no chain has been verified yet. (Same
   applies to Ethereum attestations.)
+- Block-header providers (`EsploraBlockHeaderProvider`,
+  `BitcoinCoreRpcBlockHeaderProvider`, `LitecoinSpaceBlockHeaderProvider`,
+  `JsonRpcEthereumBlockHeaderProvider`) now throw the new
+  `BlockHeaderProviderException` for all boundary failures: HTTP
+  non-2xx, response body exceeding the 32 KB cap (256 B for plain-text
+  endpoints), malformed JSON, RPC error, or missing/malformed header
+  fields. Previously these surfaced as raw `HttpRequestException` /
+  `InvalidOperationException`. Mirrors the typed-exception discipline
+  on `CalendarClient` (`CalendarException`).
+
+### Fixed
+
+- `OtsReader.ReadVarUInt` was silently truncating 10-byte varuint inputs
+  whose final byte's low-7-bit payload was > 1 (i.e. bit positions ≥ 64),
+  producing a numerically valid `ulong` where the input encoded a value
+  outside the `ulong` range. Now correctly throws `VarUIntOverflowException`.
 
 ## 1.0.0 — first stable release
 

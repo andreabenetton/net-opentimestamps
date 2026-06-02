@@ -44,3 +44,8 @@ OpenTimestamps.Stamping.MerkleAggregator
 OpenTimestamps.Stamping.StampService.StampManyAsync(System.Collections.Generic.IReadOnlyList<string!>! filePaths, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<OpenTimestamps.DetachedTimestampFile!>!>!
 static OpenTimestamps.Stamping.MerkleAggregator.Aggregate(System.Collections.Generic.IReadOnlyList<byte[]!>! leaves) -> OpenTimestamps.Stamping.MerkleAggregationResult!
 OpenTimestamps.Stamping.MerkleAggregationResult.RootTimestamp.get -> OpenTimestamps.Timestamp!
+OpenTimestamps.Verification.BlockHeaderProviderException
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message, System.Exception? innerException) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message, int httpStatus, System.Exception? innerException) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.HttpStatus.get -> int?

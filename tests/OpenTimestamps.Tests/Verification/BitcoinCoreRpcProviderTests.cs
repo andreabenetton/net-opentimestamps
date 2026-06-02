@@ -66,7 +66,7 @@ public sealed class BitcoinCoreRpcProviderTests
         using var http = new HttpClient(handler);
         var provider = new BitcoinCoreRpcBlockHeaderProvider(http, RpcEndpoint);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
+        var ex = await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(99_999_999));
         Assert.Contains("out of range", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
@@ -79,7 +79,7 @@ public sealed class BitcoinCoreRpcProviderTests
         using var http = new HttpClient(handler);
         var provider = new BitcoinCoreRpcBlockHeaderProvider(http, RpcEndpoint);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<BlockHeaderProviderException>(
             () => provider.GetHeaderAsync(1));
     }
 

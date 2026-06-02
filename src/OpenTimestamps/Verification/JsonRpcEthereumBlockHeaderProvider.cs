@@ -90,13 +90,10 @@ public sealed class JsonRpcEthereumBlockHeaderProvider : EthereumBlockHeaderProv
         using HttpResponseMessage response = await _http
             .SendAsync(request, cancellationToken)
             .ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        BoundedHttpResponseReader.EnsureSuccessOrThrow(response, "Ethereum RPC eth_getBlockByNumber");
 
-        await using Stream s = await response.Content
-            .ReadAsStreamAsync(cancellationToken)
-            .ConfigureAwait(false);
-        using JsonDocument doc = await JsonDocument
-            .ParseAsync(s, default, cancellationToken)
+        using JsonDocument doc = await BoundedHttpResponseReader
+            .ParseBoundedJsonAsync(response.Content, BoundedHttpResponseReader.JsonCap, cancellationToken)
             .ConfigureAwait(false);
 
         JsonElement root = doc.RootElement;
@@ -105,35 +102,35 @@ public sealed class JsonRpcEthereumBlockHeaderProvider : EthereumBlockHeaderProv
             string message = err.TryGetProperty("message", out JsonElement msgEl)
                 ? msgEl.GetString() ?? err.GetRawText()
                 : err.GetRawText();
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Ethereum RPC eth_getBlockByNumber returned error: {message}");
         }
 
         if (!root.TryGetProperty("result", out JsonElement result)
             || result.ValueKind != JsonValueKind.Object)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Ethereum RPC returned no block for height {height} (perhaps not yet mined?).");
         }
 
         if (!result.TryGetProperty("transactionsRoot", out JsonElement txRootEl)
             || txRootEl.ValueKind != JsonValueKind.String)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 "Ethereum block JSON missing 'transactionsRoot' string field.");
         }
 
         if (!result.TryGetProperty("timestamp", out JsonElement tsEl)
             || tsEl.ValueKind != JsonValueKind.String)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 "Ethereum block JSON missing 'timestamp' string field.");
         }
 
         string txRootHex = TrimHex(txRootEl.GetString()!);
         if (txRootHex.Length != 64)
         {
-            throw new InvalidOperationException(
+            throw new BlockHeaderProviderException(
                 $"Ethereum transactionsRoot has unexpected length: '{txRootHex}'.");
         }
 
