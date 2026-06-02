@@ -108,10 +108,16 @@ OpenTimestamps.Serialization.UnsupportedMajorVersionException.ObservedVersion.ge
 OpenTimestamps.Serialization.UnsupportedMajorVersionException.UnsupportedMajorVersionException(byte observedVersion) -> void
 OpenTimestamps.Serialization.VarUIntOverflowException
 OpenTimestamps.Serialization.VarUIntOverflowException.VarUIntOverflowException() -> void
+OpenTimestamps.Stamping.MerkleAggregationResult
+OpenTimestamps.Stamping.MerkleAggregationResult.LeafTimestamps.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Timestamp!>!
+OpenTimestamps.Stamping.MerkleAggregationResult.RootDigest.get -> byte[]!
+OpenTimestamps.Stamping.MerkleAggregationResult.RootTimestamp.get -> OpenTimestamps.Timestamp!
+OpenTimestamps.Stamping.MerkleAggregator
 OpenTimestamps.Stamping.StampService
 OpenTimestamps.Stamping.StampService.StampBytesAsync(byte[]! data, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
 OpenTimestamps.Stamping.StampService.StampDigestAsync(byte[]! digest, OpenTimestamps.Ops.CryptOp! fileHashOp, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
 OpenTimestamps.Stamping.StampService.StampFileAsync(string! filePath, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.DetachedTimestampFile!>!
+OpenTimestamps.Stamping.StampService.StampManyAsync(System.Collections.Generic.IReadOnlyList<string!>! filePaths, System.Collections.Generic.IEnumerable<OpenTimestamps.Calendars.CalendarClient!>! calendars, int quorum = 2, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<OpenTimestamps.DetachedTimestampFile!>!>!
 OpenTimestamps.Stamping.StampService.StampService(System.Func<byte[]!>? nonceProvider = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Stamping.UpgradeResult
 OpenTimestamps.Stamping.UpgradeResult.ChangedAnything.get -> bool
@@ -153,11 +159,22 @@ OpenTimestamps.Verification.BlockHeader.Time.init -> void
 OpenTimestamps.Verification.BlockHeader.Validate() -> OpenTimestamps.Verification.BlockHeader!
 OpenTimestamps.Verification.BlockHeaderProvider
 OpenTimestamps.Verification.BlockHeaderProvider.BlockHeaderProvider() -> void
+OpenTimestamps.Verification.BlockHeaderProviderException
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message, System.Exception? innerException) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.BlockHeaderProviderException(string! message, int httpStatus, System.Exception? innerException) -> void
+OpenTimestamps.Verification.BlockHeaderProviderException.HttpStatus.get -> int?
 OpenTimestamps.Verification.CachingBlockHeaderProvider
 OpenTimestamps.Verification.CachingBlockHeaderProvider.CachedCount.get -> int
 OpenTimestamps.Verification.CachingBlockHeaderProvider.CachingBlockHeaderProvider(OpenTimestamps.Verification.BlockHeaderProvider! inner, int maxEntries = 8192, Microsoft.Extensions.Logging.ILogger? logger = null, OpenTimestamps.Verification.IHeaderCacheStore? store = null) -> void
+OpenTimestamps.Verification.ChainId
+OpenTimestamps.Verification.ChainId.Bitcoin = 0 -> OpenTimestamps.Verification.ChainId
+OpenTimestamps.Verification.ChainId.Ethereum = 2 -> OpenTimestamps.Verification.ChainId
+OpenTimestamps.Verification.ChainId.Litecoin = 1 -> OpenTimestamps.Verification.ChainId
 OpenTimestamps.Verification.EsploraBlockHeaderProvider
 OpenTimestamps.Verification.EsploraBlockHeaderProvider.EsploraBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+OpenTimestamps.Verification.EthereumBlockHeaderProvider
+OpenTimestamps.Verification.EthereumBlockHeaderProvider.EthereumBlockHeaderProvider() -> void
 OpenTimestamps.Verification.FileBackedHeaderCacheStore
 OpenTimestamps.Verification.FileBackedHeaderCacheStore.Count.get -> int
 OpenTimestamps.Verification.FileBackedHeaderCacheStore.Dispose() -> void
@@ -171,6 +188,12 @@ OpenTimestamps.Verification.FileDigestMismatchException.FileDigestMismatchExcept
 OpenTimestamps.Verification.IHeaderCacheStore
 OpenTimestamps.Verification.IHeaderCacheStore.Put(OpenTimestamps.Verification.BlockHeader! header) -> void
 OpenTimestamps.Verification.IHeaderCacheStore.TryGet(ulong height) -> OpenTimestamps.Verification.BlockHeader?
+OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider
+OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.JsonRpcEthereumBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! rpcEndpoint, string? username = null, string? password = null, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
+OpenTimestamps.Verification.LitecoinBlockHeaderProvider
+OpenTimestamps.Verification.LitecoinBlockHeaderProvider.LitecoinBlockHeaderProvider() -> void
+OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider
+OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.LitecoinSpaceBlockHeaderProvider(System.Net.Http.HttpClient! httpClient, System.Uri! baseUri, Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.TimestampStatus
 OpenTimestamps.Verification.TimestampStatus.Anchored = 1 -> OpenTimestamps.Verification.TimestampStatus
 OpenTimestamps.Verification.TimestampStatus.Incomplete = 0 -> OpenTimestamps.Verification.TimestampStatus
@@ -184,6 +207,8 @@ OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.TrustedHeadersBloc
 OpenTimestamps.Verification.VerificationResult
 OpenTimestamps.Verification.VerificationResult.BitcoinAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.BitcoinBlockHeaderAttestation!>!
 OpenTimestamps.Verification.VerificationResult.EarliestVerifiedTime.get -> System.DateTimeOffset?
+OpenTimestamps.Verification.VerificationResult.EthereumAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.EthereumBlockHeaderAttestation!>!
+OpenTimestamps.Verification.VerificationResult.LitecoinAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.LitecoinBlockHeaderAttestation!>!
 OpenTimestamps.Verification.VerificationResult.PendingAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.PendingAttestation!>!
 OpenTimestamps.Verification.VerificationResult.Status.get -> OpenTimestamps.Verification.TimestampStatus
 OpenTimestamps.Verification.VerificationResult.UnknownAttestations.get -> System.Collections.Generic.IReadOnlyList<OpenTimestamps.Attestations.UnknownAttestation!>!
@@ -194,10 +219,14 @@ OpenTimestamps.Verification.VerificationService
 OpenTimestamps.Verification.VerificationService.VerificationService(Microsoft.Extensions.Logging.ILogger? logger = null) -> void
 OpenTimestamps.Verification.VerificationService.VerifyAsync(OpenTimestamps.DetachedTimestampFile! dtf, byte[]! fileBytes, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
 OpenTimestamps.Verification.VerificationService.VerifyFileAsync(OpenTimestamps.DetachedTimestampFile! dtf, string! filePath, OpenTimestamps.Verification.BlockHeaderProvider? provider, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
+OpenTimestamps.Verification.VerificationService.VerifyFileMultiChainAsync(OpenTimestamps.DetachedTimestampFile! dtf, string! filePath, OpenTimestamps.Verification.VerifyOptions! options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
+OpenTimestamps.Verification.VerificationService.VerifyMultiChainAsync(OpenTimestamps.DetachedTimestampFile! dtf, byte[]! fileBytes, OpenTimestamps.Verification.VerifyOptions! options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.VerificationResult!>!
 OpenTimestamps.Verification.VerifiedAttestation
 OpenTimestamps.Verification.VerifiedAttestation.<Clone>$() -> OpenTimestamps.Verification.VerifiedAttestation!
 OpenTimestamps.Verification.VerifiedAttestation.BlockTime.get -> System.DateTimeOffset
 OpenTimestamps.Verification.VerifiedAttestation.BlockTime.init -> void
+OpenTimestamps.Verification.VerifiedAttestation.Chain.get -> OpenTimestamps.Verification.ChainId
+OpenTimestamps.Verification.VerifiedAttestation.Chain.init -> void
 OpenTimestamps.Verification.VerifiedAttestation.Deconstruct(out ulong Height, out System.DateTimeOffset BlockTime, out string! ProviderName, out OpenTimestamps.Verification.TrustCategory TrustCategory) -> void
 OpenTimestamps.Verification.VerifiedAttestation.Equals(OpenTimestamps.Verification.VerifiedAttestation? other) -> bool
 OpenTimestamps.Verification.VerifiedAttestation.Height.get -> ulong
@@ -207,6 +236,14 @@ OpenTimestamps.Verification.VerifiedAttestation.ProviderName.init -> void
 OpenTimestamps.Verification.VerifiedAttestation.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
 OpenTimestamps.Verification.VerifiedAttestation.TrustCategory.init -> void
 OpenTimestamps.Verification.VerifiedAttestation.VerifiedAttestation(ulong Height, System.DateTimeOffset BlockTime, string! ProviderName, OpenTimestamps.Verification.TrustCategory TrustCategory) -> void
+OpenTimestamps.Verification.VerifyOptions
+OpenTimestamps.Verification.VerifyOptions.BitcoinProvider.get -> OpenTimestamps.Verification.BlockHeaderProvider?
+OpenTimestamps.Verification.VerifyOptions.BitcoinProvider.init -> void
+OpenTimestamps.Verification.VerifyOptions.EthereumProvider.get -> OpenTimestamps.Verification.EthereumBlockHeaderProvider?
+OpenTimestamps.Verification.VerifyOptions.EthereumProvider.init -> void
+OpenTimestamps.Verification.VerifyOptions.LitecoinProvider.get -> OpenTimestamps.Verification.LitecoinBlockHeaderProvider?
+OpenTimestamps.Verification.VerifyOptions.LitecoinProvider.init -> void
+OpenTimestamps.Verification.VerifyOptions.VerifyOptions() -> void
 abstract OpenTimestamps.Attestations.TimeAttestation.SerializePayload(OpenTimestamps.Serialization.OtsWriter! writer) -> void
 abstract OpenTimestamps.Attestations.TimeAttestation.Tag.get -> System.ReadOnlySpan<byte>
 abstract OpenTimestamps.Ops.CryptOp.DigestLength.get -> int
@@ -217,6 +254,12 @@ abstract OpenTimestamps.Ops.Op.Tag.get -> byte
 abstract OpenTimestamps.Verification.BlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
 abstract OpenTimestamps.Verification.BlockHeaderProvider.Name.get -> string!
 abstract OpenTimestamps.Verification.BlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+abstract OpenTimestamps.Verification.EthereumBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+abstract OpenTimestamps.Verification.EthereumBlockHeaderProvider.Name.get -> string!
+abstract OpenTimestamps.Verification.EthereumBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+abstract OpenTimestamps.Verification.LitecoinBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+abstract OpenTimestamps.Verification.LitecoinBlockHeaderProvider.Name.get -> string!
+abstract OpenTimestamps.Verification.LitecoinBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
 const OpenTimestamps.Attestations.PendingAttestation.MaxUriLength = 1000 -> int
 const OpenTimestamps.Attestations.TimeAttestation.MaxPayloadSize = 8192 -> int
 const OpenTimestamps.Attestations.TimeAttestation.TagSize = 8 -> int
@@ -283,6 +326,12 @@ override OpenTimestamps.Verification.CachingBlockHeaderProvider.TrustCategory.ge
 override OpenTimestamps.Verification.EsploraBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
 override OpenTimestamps.Verification.EsploraBlockHeaderProvider.Name.get -> string!
 override OpenTimestamps.Verification.EsploraBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.JsonRpcEthereumBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
+override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
+override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.Name.get -> string!
+override OpenTimestamps.Verification.LitecoinSpaceBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
 override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.GetHeaderAsync(ulong height, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenTimestamps.Verification.BlockHeader!>!
 override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.Name.get -> string!
 override OpenTimestamps.Verification.TrustedHeadersBlockHeaderProvider.TrustCategory.get -> OpenTimestamps.Verification.TrustCategory
@@ -315,6 +364,7 @@ static OpenTimestamps.Ops.Op.operator <=(OpenTimestamps.Ops.Op! left, OpenTimest
 static OpenTimestamps.Ops.Op.operator ==(OpenTimestamps.Ops.Op? left, OpenTimestamps.Ops.Op? right) -> bool
 static OpenTimestamps.Ops.Op.operator >(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
 static OpenTimestamps.Ops.Op.operator >=(OpenTimestamps.Ops.Op! left, OpenTimestamps.Ops.Op! right) -> bool
+static OpenTimestamps.Stamping.MerkleAggregator.Aggregate(System.Collections.Generic.IReadOnlyList<byte[]!>! leaves) -> OpenTimestamps.Stamping.MerkleAggregationResult!
 static OpenTimestamps.Timestamp.Deserialize(OpenTimestamps.Serialization.OtsReader! reader, byte[]! initialMsg) -> OpenTimestamps.Timestamp!
 static OpenTimestamps.Verification.BlockHeader.operator !=(OpenTimestamps.Verification.BlockHeader? left, OpenTimestamps.Verification.BlockHeader? right) -> bool
 static OpenTimestamps.Verification.BlockHeader.operator ==(OpenTimestamps.Verification.BlockHeader? left, OpenTimestamps.Verification.BlockHeader? right) -> bool

@@ -30,21 +30,18 @@ project; if the issue is critical we will move faster.
 
 ## Supported versions
 
-`1.0.0` is cut in-tree (the source has `VersionPrefix=1.0.0` and the API
-surface is frozen under `PublicApiAnalyzers`) but no version has been
-tagged or published to NuGet yet — there is currently nothing for an
-external consumer to depend on. Until the first published release, the
-only supported version is `main` itself.
+`1.0.0` is the first published release. The public API surface is frozen
+under `PublicApiAnalyzers`; future surface changes appear as deliberate
+diffs in `PublicAPI.Unshipped.txt`. Security fixes land on the latest
+`1.x` line, with patches issued from `main`.
 
 | Version | Security fixes |
 |---------|----------------|
-| `main` (unreleased) | ✅ |
-| `1.x.y` once published | ✅ — to be filled in once tags exist |
-| any pre-publish snapshot taken from `main` | ❌ — please update to `main` |
+| `1.0.x` | ✅ |
+| `main` | ✅ (development line; fixes land here first) |
+| `0.x` | ❌ — please upgrade to `1.x` |
 
-This table will be revised on each tagged release to track which lines
-receive fixes. Until then, every security report is assessed against
-`main`.
+This table will be revised as new minor / major lines are tagged.
 
 ## Scope
 

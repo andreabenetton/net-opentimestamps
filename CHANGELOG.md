@@ -6,6 +6,15 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
+_No changes yet since `1.0.0`._
+
+## 1.0.0 — first stable release
+
+The first release with the API surface frozen under
+`Microsoft.CodeAnalysis.PublicApiAnalyzers`. Every public symbol present
+at this version is captured in `src/OpenTimestamps/PublicAPI.Shipped.txt`;
+post-1.0 changes will surface as deliberate diffs in `PublicAPI.Unshipped.txt`.
+
 ### Added
 
 - Multi-file batch stamping:
@@ -41,7 +50,25 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
     per-chain attestation lists.
   - `VerifiedAttestation.Chain` init-only property distinguishing which
     chain a successfully verified attestation anchors to.
-
+- `OpenTimestamps.Verification.BlockHeaderProviderException` — typed
+  exception surfaced by all block-header providers for boundary failures
+  (HTTP non-2xx, oversize response, malformed JSON, RPC error, missing or
+  malformed header field). Mirrors the role of `CalendarException`.
+- `OpenTimestamps.TimestampMergeException` — typed exception thrown by
+  `Timestamp.Merge` when the operand's `Msg` differs from the receiver's.
+  Inherits from `InvalidOperationException` so existing catch blocks still
+  match.
+- `OpenTimestamps.Serialization.VarUIntOverflowException` — typed exception
+  thrown when a LEB128 varuint on the wire exceeds the 64-bit value range.
+  Replaces the previous plain `DeserializationException` thrown by
+  `OtsReader.ReadVarUInt` in that case. `catch (DeserializationException)`
+  blocks continue to match.
+- `CalendarException(string message, int httpStatus, Exception? innerException)`
+  constructor — chains the underlying cause when a non-success response body
+  fails to read.
+- `<exception>` XML doc tags on the most consumer-facing public methods of
+  `Timestamp`, `DetachedTimestampFile`, `StampService`, `CalendarClient`, and
+  `VerificationService` — exception contract is now part of the documentation.
 - `ots verify` gains `--ethereum-rpc URL` (plus `--eth-rpc-user` and
   `--eth-rpc-password` for Basic auth) wiring a
   `JsonRpcEthereumBlockHeaderProvider`. Multi-chain `VERIFIED` is
@@ -59,13 +86,29 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   applies to Ethereum attestations.)
 - Block-header providers (`EsploraBlockHeaderProvider`,
   `BitcoinCoreRpcBlockHeaderProvider`, `LitecoinSpaceBlockHeaderProvider`,
-  `JsonRpcEthereumBlockHeaderProvider`) now throw the new
-  `BlockHeaderProviderException` for all boundary failures: HTTP
-  non-2xx, response body exceeding the 32 KB cap (256 B for plain-text
-  endpoints), malformed JSON, RPC error, or missing/malformed header
-  fields. Previously these surfaced as raw `HttpRequestException` /
-  `InvalidOperationException`. Mirrors the typed-exception discipline
-  on `CalendarClient` (`CalendarException`).
+  `JsonRpcEthereumBlockHeaderProvider`) now read responses with a strict
+  32 KB cap on JSON bodies / 256 B cap on plain-text bodies, and surface
+  all boundary failures (HTTP non-2xx, size cap exceeded, malformed JSON,
+  RPC error, missing/malformed fields) as
+  `BlockHeaderProviderException` instead of raw `HttpRequestException` /
+  `InvalidOperationException`.
+- `CachingBlockHeaderProvider` now evicts the least-recently-used entry
+  when the cap is exceeded (was: clear the entire cache). Faulted lookups
+  are no longer cached — the next caller retries the inner provider, which
+  matters for transient network failures. Default `maxEntries` raised from
+  4096 to 8192 (≈800 days of Bitcoin blocks).
+- `OpenTimestamps.Verification.IHeaderCacheStore` and
+  `OpenTimestamps.Verification.FileBackedHeaderCacheStore` — pluggable
+  persistent backing store for block headers. Compose via the optional
+  `store:` parameter on `CachingBlockHeaderProvider`. Trust category
+  inherits from the inner provider; see `docs/verification-model.md`.
+- Library now references `Microsoft.Extensions.Logging.Abstractions`.
+  `CalendarClient`, `StampService`, `UpgradeService`, `VerificationService`,
+  `CachingBlockHeaderProvider`, `EsploraBlockHeaderProvider`, and
+  `BitcoinCoreRpcBlockHeaderProvider` each gain a final optional
+  `ILogger? logger = null` constructor parameter. Defaults to
+  `NullLogger.Instance`. Source- and binary-compatible for any call site
+  using positional args ≤ the previous parameter count.
 
 ### Fixed
 
@@ -73,13 +116,10 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
   whose final byte's low-7-bit payload was > 1 (i.e. bit positions ≥ 64),
   producing a numerically valid `ulong` where the input encoded a value
   outside the `ulong` range. Now correctly throws `VarUIntOverflowException`.
-
-## 1.0.0 — first stable release
-
-The first release with the API surface frozen under
-`Microsoft.CodeAnalysis.PublicApiAnalyzers`. Every public symbol present
-at this version is captured in `src/OpenTimestamps/PublicAPI.Shipped.txt`;
-post-1.0 changes will surface as deliberate diffs in `PublicAPI.Unshipped.txt`.
+- `CalendarClient` no longer silently swallows body-read failures on
+  non-success HTTP responses. The read failure is preserved on
+  `CalendarException.InnerException` and the message reports `(unreadable: <type>)`
+  instead of `(no body)`.
 
 ### Production-grade infrastructure landed since 0.1.0
 
@@ -102,51 +142,6 @@ post-1.0 changes will surface as deliberate diffs in `PublicAPI.Unshipped.txt`.
   issue templates, PR template.
 - `samples/StampVerifyDemo` — runnable end-to-end demo.
 - `docs/versioning.md`, `docs/releasing.md` — SemVer policy + release flow.
-
-### Added
-
-- `OpenTimestamps.TimestampMergeException` — typed exception thrown by
-  `Timestamp.Merge` when the operand's `Msg` differs from the receiver's.
-  Inherits from `InvalidOperationException` so existing catch blocks still
-  match.
-- `OpenTimestamps.Serialization.VarUIntOverflowException` — typed exception
-  thrown when a LEB128 varuint on the wire exceeds the 64-bit value range.
-  Replaces the previous plain `DeserializationException` thrown by
-  `OtsReader.ReadVarUInt` in that case. `catch (DeserializationException)`
-  blocks continue to match.
-- `CalendarException(string message, int httpStatus, Exception? innerException)`
-  constructor — chains the underlying cause when a non-success response body
-  fails to read.
-- `<exception>` XML doc tags on the most consumer-facing public methods of
-  `Timestamp`, `DetachedTimestampFile`, `StampService`, `CalendarClient`, and
-  `VerificationService` — exception contract is now part of the documentation.
-
-### Fixed
-
-- `CalendarClient` no longer silently swallows body-read failures on
-  non-success HTTP responses. The read failure is preserved on
-  `CalendarException.InnerException` and the message reports `(unreadable: <type>)`
-  instead of `(no body)`.
-
-### Changed
-
-- `CachingBlockHeaderProvider` now evicts the least-recently-used entry
-  when the cap is exceeded (was: clear the entire cache). Faulted lookups
-  are no longer cached — the next caller retries the inner provider, which
-  matters for transient network failures. Default `maxEntries` raised from
-  4096 to 8192 (≈800 days of Bitcoin blocks).
-- `OpenTimestamps.Verification.IHeaderCacheStore` and
-  `OpenTimestamps.Verification.FileBackedHeaderCacheStore` — pluggable
-  persistent backing store for block headers. Compose via the optional
-  `store:` parameter on `CachingBlockHeaderProvider`. Trust category
-  inherits from the inner provider; see `docs/verification-model.md`.
-- Library now references `Microsoft.Extensions.Logging.Abstractions`.
-  `CalendarClient`, `StampService`, `UpgradeService`, `VerificationService`,
-  `CachingBlockHeaderProvider`, `EsploraBlockHeaderProvider`, and
-  `BitcoinCoreRpcBlockHeaderProvider` each gain a final optional
-  `ILogger? logger = null` constructor parameter. Defaults to
-  `NullLogger.Instance`. Source- and binary-compatible for any call site
-  using positional args ≤ the previous parameter count.
 
 ## 0.1.0 — initial release
 
