@@ -123,9 +123,13 @@ if (result.Status == TimestampStatus.Verified)
 
 ## Versioning and stability
 
-- The library is pre-1.0 (`0.1.0`). Public API may change between minor versions
-  until 1.0; treat every signature change as breaking and call it out in
-  `CHANGELOG.md`.
+- The library is at `1.0.0` with the public API frozen under
+  `Microsoft.CodeAnalysis.PublicApiAnalyzers`. The shipped surface lives in
+  `src/OpenTimestamps/PublicAPI.Shipped.txt`; deliberate post-1.0 additions
+  appear as diffs in `PublicAPI.Unshipped.txt` and ship together in the next
+  minor / major release. SemVer policy and release flow are documented in
+  `docs/versioning.md` and `docs/releasing.md`; every public-surface change
+  must be reflected in `CHANGELOG.md`.
 - The wire format is the OpenTimestamps protocol's wire format; it is fixed by
   the reference clients and not subject to our versioning choices.
 - The `ots` CLI exit-code contract (0/1/2/3) is treated as public API.
