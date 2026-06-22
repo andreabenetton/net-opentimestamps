@@ -22,6 +22,12 @@ updates:
         patterns:
           - "coverlet.*"
           - "BenchmarkDotNet*"
+    ignore:
+      # Microsoft.Extensions.* packages are runtime-major-locked: keep on
+      # the 9.0.x track while the library targets net9.0. Bump the major
+      # alongside the TFM, not before.
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
       - "nuget"
