@@ -41,7 +41,7 @@ jobs:
       version: ${{ steps.derive.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # SourceLink + tag-derived version need full history
 
@@ -116,7 +116,7 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -151,7 +151,7 @@ jobs:
        github.event.inputs.publish_nuget == 'true')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -189,7 +189,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download nupkgs
         uses: actions/download-artifact@v4
