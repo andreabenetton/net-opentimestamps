@@ -101,6 +101,17 @@ again later.
 Off-whitelist pending URIs are surfaced as "Skipped" rather than silently
 contacted.
 
+An upgraded proof is larger than the pending proof it replaces. Each
+resolved calendar contributes its merkle path up to the Bitcoin transaction
+plus the block-header attestation (roughly 600–750 bytes per calendar), and
+the original pending attestation leaves are kept next to the new Bitcoin
+leaves rather than removed. A three-calendar stamp growing from about 1 KB
+to about 3 KB is therefore expected. This matches the Python reference
+client byte-for-byte: `opentimestamps-client` also retains pending
+attestations after `upgrade`, and its output on the upstream
+`incomplete.txt.ots` and `two-calendars.txt.ots` examples is identical to
+ours.
+
 ## `ots verify <file> [--proof PATH] [--explorer URL | --bitcoin-rpc URL [--rpc-user U --rpc-password P]] [--litecoin-explorer URL]`
 
 Hash `<file>`, compare it to the digest committed in the proof, then walk the
