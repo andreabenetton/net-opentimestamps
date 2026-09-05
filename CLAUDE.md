@@ -11,7 +11,7 @@ serialization, and verification.
 
 ## Repo stance
 This repo is:
-- a protocol-conforming implementation of OpenTimestamps for .NET 10
+- a protocol-conforming implementation of OpenTimestamps for .NET; the library multi-targets net9.0 and net10.0, the CLI and tests target net10.0
 - library-first, CLI second
 - byte-compatible with the Python and JavaScript reference clients
 - forward-compatible: unknown operations and attestations must round-trip verbatim

@@ -6,13 +6,16 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
-### Breaking
+### Changed
 
-- Target framework moved from `net9.0` to `net10.0` for the library, the
-  `ots` CLI tool, and the test projects. Consumers must run on .NET 10 or
-  later; `global.json` now pins the 10.0.100 SDK band. No public symbol
-  changed. `Microsoft.Extensions.Logging.Abstractions` follows the runtime
-  to 10.0.x.
+- The `OpenTimestamps` library now multi-targets `net9.0` and `net10.0`;
+  existing .NET 9 consumers keep working and .NET 10 consumers get the
+  native build. No public symbol changed.
+- The `ots` CLI tool, tests, samples and benchmarks target `net10.0`;
+  running the packaged tool now requires the .NET 10 runtime.
+- `global.json` pins the 10.0.100 SDK band; the .NET 10 SDK builds both
+  library targets. `Microsoft.Extensions.Logging.Abstractions` follows the
+  runtime to 10.0.x.
 
 ## 1.0.0 — first stable release
 

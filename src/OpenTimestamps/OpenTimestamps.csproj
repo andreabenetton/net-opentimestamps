@@ -1,10 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!--
+      The library multi-targets so consumers on .NET 9 keep working while the
+      CLI, tests, samples and benchmarks build for net10.0 only (set in
+      Directory.Build.props). Clearing TargetFramework is required: when both
+      properties are set, the single-TFM one wins.
+    -->
+    <TargetFramework />
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
     <RootNamespace>OpenTimestamps</RootNamespace>
     <AssemblyName>OpenTimestamps</AssemblyName>
     <PackageId>OpenTimestamps</PackageId>
-    <Description>A native .NET 10 implementation of the OpenTimestamps protocol for creating, parsing, upgrading, and verifying detached timestamp proofs anchored in the Bitcoin blockchain.</Description>
+    <Description>A native .NET implementation (net9.0 and net10.0) of the OpenTimestamps protocol for creating, parsing, upgrading, and verifying detached timestamp proofs anchored in the Bitcoin blockchain.</Description>
     <PackageTags>opentimestamps;ots;bitcoin;timestamp;blockchain;sha256;merkle</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591;CA1707;CA1303</NoWarn>

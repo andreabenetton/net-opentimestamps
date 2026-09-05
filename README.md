@@ -1,6 +1,6 @@
 # net-opentimestamps
 
-A native .NET 10 implementation of the [OpenTimestamps](https://opentimestamps.org/)
+A native .NET implementation (net9.0 and net10.0) of the [OpenTimestamps](https://opentimestamps.org/)
 protocol — a library and CLI for creating, parsing, upgrading, and verifying
 detached `.ots` proofs that anchor data to the Bitcoin blockchain.
 
