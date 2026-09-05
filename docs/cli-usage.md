@@ -6,11 +6,11 @@ four operations: `stamp`, `verify`, `upgrade`, and `info`.
 ## Installation
 
 After building the solution, the CLI is at
-`src/OpenTimestamps.Cli/bin/Debug/net9.0/ots.dll` and can be run with
+`src/OpenTimestamps.Cli/bin/Debug/net10.0/ots.dll` and can be run with
 `dotnet`:
 
 ```
-dotnet src/OpenTimestamps.Cli/bin/Debug/net9.0/ots.dll <command> ...
+dotnet src/OpenTimestamps.Cli/bin/Debug/net10.0/ots.dll <command> ...
 ```
 
 For day-to-day use, pack and install as a `dotnet tool`:

@@ -6,7 +6,13 @@ versioning here applies to the .NET public API surface and the `ots` CLI.
 
 ## Unreleased
 
-_No changes yet since `1.0.0`._
+### Breaking
+
+- Target framework moved from `net9.0` to `net10.0` for the library, the
+  `ots` CLI tool, and the test projects. Consumers must run on .NET 10 or
+  later; `global.json` now pins the 10.0.100 SDK band. No public symbol
+  changed. `Microsoft.Extensions.Logging.Abstractions` follows the runtime
+  to 10.0.x.
 
 ## 1.0.0 — first stable release
 

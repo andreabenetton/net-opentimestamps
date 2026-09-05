@@ -10,7 +10,7 @@ opening a non-trivial PR.
 
 Requirements:
 
-- .NET 9 SDK (pinned in [`global.json`](global.json)).
+- .NET 10 SDK (pinned in [`global.json`](global.json)).
 - Optional, for the cross-implementation interop test: the Python
   [`opentimestamps-client`](https://github.com/opentimestamps/opentimestamps-client)
   CLI on `PATH`.

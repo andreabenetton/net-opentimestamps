@@ -4,7 +4,7 @@
     <RootNamespace>OpenTimestamps</RootNamespace>
     <AssemblyName>OpenTimestamps</AssemblyName>
     <PackageId>OpenTimestamps</PackageId>
-    <Description>A native .NET 9 implementation of the OpenTimestamps protocol for creating, parsing, upgrading, and verifying detached timestamp proofs anchored in the Bitcoin blockchain.</Description>
+    <Description>A native .NET 10 implementation of the OpenTimestamps protocol for creating, parsing, upgrading, and verifying detached timestamp proofs anchored in the Bitcoin blockchain.</Description>
     <PackageTags>opentimestamps;ots;bitcoin;timestamp;blockchain;sha256;merkle</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591;CA1707;CA1303</NoWarn>
