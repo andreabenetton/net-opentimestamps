@@ -25,7 +25,7 @@ dotnet test  OpenTimestamps.sln --configuration Release
 For UI-equivalent CLI verification:
 
 ```
-dotnet run --project src/OpenTimestamps.Cli -- \
+dotnet run --project src/OpenTimestamps.Cli --framework net10.0 -- \
   info tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt.ots
 ```
 
@@ -69,7 +69,7 @@ change. The PublicApiAnalyzers analyzer enforces this:
 - New library code: at least one targeted unit test in
   `tests/OpenTimestamps.Tests/`. Mock at the HTTP boundary, not at the
   protocol boundary — protocol bugs must be caught.
-- New CLI flags or commands: exercise via `dotnet run --project src/OpenTimestamps.Cli`
+- New CLI flags or commands: exercise via `dotnet run --project src/OpenTimestamps.Cli --framework net10.0`
   against a real fixture and confirm the exit code and stdout shape.
 - Network code: integration tests live under
   `tests/OpenTimestamps.IntegrationTests` and are gated by `OTS_SKIP_NETWORK=1`.

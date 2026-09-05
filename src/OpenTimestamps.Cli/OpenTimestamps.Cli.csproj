@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!--
+      Multi-target so the packed dotnet tool runs on the .NET 9 or .NET 10
+      runtime. Running this project with dotnet run requires a framework argument.
+    -->
+    <TargetFramework />
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
     <RootNamespace>OpenTimestamps.Cli</RootNamespace>
     <AssemblyName>ots</AssemblyName>
     <PackageId>OpenTimestamps.Cli</PackageId>

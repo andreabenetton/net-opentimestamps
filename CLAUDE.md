@@ -339,7 +339,7 @@ dotnet test tests/OpenTimestamps.Tests/OpenTimestamps.Tests.csproj
 
 For CLI changes, run the actual binary against a real fixture:
 ```
-dotnet run --project src/OpenTimestamps.Cli -- info tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt.ots
+dotnet run --project src/OpenTimestamps.Cli --framework net10.0 -- info tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt.ots
 ```
 
 For changes touching calendar HTTP or external block-header providers,

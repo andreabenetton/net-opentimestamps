@@ -218,14 +218,14 @@ jobs:
       # confirm they succeed and produce the expected status / exit code.
       - name: ots info on hello-world fixture
         run: >
-          dotnet run --project src/OpenTimestamps.Cli --configuration Release --
+          dotnet run --project src/OpenTimestamps.Cli --configuration Release --framework net10.0 --
           info tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt.ots
 
       - name: ots verify reports ANCHORED without a provider (exit 2)
         shell: bash
         run: |
           set +e
-          dotnet run --project src/OpenTimestamps.Cli --configuration Release -- \
+          dotnet run --project src/OpenTimestamps.Cli --configuration Release --framework net10.0 -- \
             verify tests/OpenTimestamps.Tests/fixtures/python-opentimestamps/hello-world.txt
           rc=$?
           set -e
